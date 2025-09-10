@@ -1,16 +1,28 @@
 import express from "express";
 import dotenv from "dotenv";
-import taskRoute from "./routes/tasksRouters.js";
+import cors from "cors";
 import { connectDB } from "./config/db.js";
+import examRoutes from "./routes/examRoutes.js";
+import topicRoutes from "./routes/topicRoutes.js";
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5001;
 
-// middleware
+// Middleware
+app.use(cors()); // Enable CORS for all routes
 app.use(express.json());
-app.use("/api/tasks", taskRoute);
+
+// API Routes
+app.use("/api/exams", examRoutes);
+app.use("/api/topics", topicRoutes);
+
+// Basic route for checking server status
+app.get("/", (req, res) => {
+  res.send("Exam Study Planner API is running...");
+});
+
 
 connectDB().then(() => {
   app.listen(PORT, () => {
