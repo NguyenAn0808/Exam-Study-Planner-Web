@@ -9,7 +9,7 @@ const topicSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ["Not Started, In-progress, Completed"],
+      enum: ["Not Started", "In-progress", "Completed"],
       default: "Not Started",
     },
     completedAt: {

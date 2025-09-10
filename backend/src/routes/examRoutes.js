@@ -11,10 +11,8 @@ const router = express.Router();
 
 // We will add authMiddleware later.
 
-router.route("/", createNewExam);
-router.route("/", getAllExams);
-router.route("/:id", getExamById);
-router.route("/:id", updateExam);
-router.route("/:id", deleteExam);
+router.route("/").post(createNewExam).get(getAllExams);
+
+router.route("/:id").get(getExamById).put(updateExam).delete(deleteExam);
 
 export default router;

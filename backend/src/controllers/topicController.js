@@ -26,7 +26,7 @@ export const getAllTopicsByExam = async (req, res) => {
     const { examID } = req.params;
     // Add authentication later
 
-    const topics = await Topic.find({ exma: examID }).sort({
+    const topics = await Topic.find({ exam: examID }).sort({
       createdAt: "asc",
     });
     res.json(topics);
@@ -39,17 +39,16 @@ export const getAllTopicsByExam = async (req, res) => {
 export const updateTopic = async (req, res) => {
   try {
     const { name, status, completedAt } = req.body;
-    const updateTopic = await Topic.findByIdAndUpdate(
+    const updatedTopic = await Topic.findByIdAndUpdate(
       req.params.id,
       { name, status, completedAt },
-      { new: true }
+      { new: true, runValidators: true }
     );
 
-    if (!updateTopic) {
-      res.status(404).json({ message: "Topic not found" });
-    } else {
-      res.status(200).json(updateTopic);
+    if (!updatedTopic) {
+      return res.status(404).json({ message: "Topic not found" });
     }
+    res.status(200).json(updatedTopic);
   } catch (error) {
     console.error("Error update topic:", error);
     res.status(500).json({ message: "Server Error" });
@@ -58,13 +57,12 @@ export const updateTopic = async (req, res) => {
 
 export const deleteTopic = async (req, res) => {
   try {
-    const deleteTopic = await Topic.findByIdAndDelete(req.params.id);
+    const deletedTopic = await Topic.findByIdAndDelete(req.params.id);
 
-    if (!topic) {
-      res.status(404).json({ message: "Topic not found" });
-    } else {
-      res.status(200).json(deleteTopic);
+    if (!deletedTopic) {
+      return res.status(404).json({ message: "Topic not found" });
     }
+    res.status(200).json({ message: "Topic deleted" });
   } catch (error) {
     console.error("Error deleting topic:", error);
     res.status(500).json({ message: "Server Error" });

@@ -10,9 +10,8 @@ const router = express.Router();
 
 // We will add authMiddleware later.
 
-router.route("/", createNewTopic);
-router.route("/", getAllTopicsByExam);
-router.route("/:id", updateTopic);
-router.route("/:id", deleteTopic);
+router.route("/").post(createNewTopic);
+router.route("/exam/:examID").get(getAllTopicsByExam);
+router.route("/:id").put(updateTopic).delete(deleteTopic);
 
 export default router;
