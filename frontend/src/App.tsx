@@ -1,22 +1,20 @@
-import './App.css'
-import hackathonGraphic from './assets/hackathon-graphic.svg'
-import naverLogo from './assets/naver-logo.svg'
+import { Toaster, toast } from "sonner";
+import { BrowserRouter, Routes, Route } from "react-router";
+import HomePage from "./pages/HomePage";
+import NotFound from "./pages/NotFound";
 
 function App() {
   return (
-    <div className="container">
-      <div className="content">
-        <img src={naverLogo} alt="NAVER Vietnam AI Hackathon" className="logo" />
-        
-        <div className="greeting">
-          <p className="hello">Xin chào! 안녕하세요!</p>
-          <p className="subtitle">Hello World</p>
-        </div>
-      </div>
-      
-      <img className="graphic" src={hackathonGraphic} alt="" />
-    </div>
-  )
+    <>
+      <Toaster />
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </BrowserRouter>
+    </>
+  );
 }
 
-export default App
+export default App;
