@@ -25,7 +25,7 @@ export default function NotFound() {
         >
           <Link to="/">
             <Home className="mr-2 h-5 w-5" />
-            Return to Homepage
+            Return to Main Page
           </Link>
         </Button>
       </div>
