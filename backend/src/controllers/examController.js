@@ -1,5 +1,6 @@
 import Exam from "../models/Exam.js";
 import Topic from "../models/Topic.js";
+import mongoose from "mongoose";
 
 export const createNewExam = async (req, res) => {
   try {
@@ -63,11 +64,11 @@ export const getAllExams = async (req, res) => {
       {
         $sort: { examDate: 1 },
       },
-      {
-        $project: {
-          topics: 0,
-        },
-      },
+      // {
+      //   $project: {
+      //     topics: 0,
+      //   },
+      // },
     ]);
 
     res.status(200).json(examsWithStats);
@@ -79,15 +80,67 @@ export const getAllExams = async (req, res) => {
 
 export const getExamById = async (req, res) => {
   try {
-    const exam = await Exam.findById(req.params.id);
+    const examId = req.params.id;
 
-    if (!exam) {
-      res.status(404).json({ message: "Exam not found" });
-    } else {
-      res.status(200).json(exam);
+    if (!mongoose.Types.ObjectId.isValid(examId)) {
+      return res.status(400).json({ message: "Invalid Exam ID" });
     }
+
+    const aggregationResult = await Exam.aggregate([
+      {
+        $match: {
+          _id: new mongoose.Types.ObjectId(examId),
+        },
+      },
+      {
+        $lookup: {
+          from: "topics",
+          localField: "_id",
+          foreignField: "exam",
+          as: "topics",
+        },
+      },
+      {
+        $addFields: {
+          counts: {
+            "Not Started": {
+              $size: {
+                $filter: {
+                  input: "$topics",
+                  cond: { $eq: ["$$this.status", "Not Started"] },
+                },
+              },
+            },
+            "In-progress": {
+              $size: {
+                $filter: {
+                  input: "$topics",
+                  cond: { $eq: ["$$this.status", "In-progress"] },
+                },
+              },
+            },
+            Completed: {
+              $size: {
+                $filter: {
+                  input: "$topics",
+                  cond: { $eq: ["$$this.status", "Completed"] },
+                },
+              },
+            },
+          },
+        },
+      },
+    ]);
+
+    const examData = aggregationResult[0];
+
+    if (!examData) {
+      return res.status(404).json({ message: "Exam not found" });
+    }
+
+    res.status(200).json(examData);
   } catch (error) {
-    console.error("Error get exam by id:", error);
+    console.error("Error getting exam by id with aggregation:", error);
     res.status(500).json({ message: "Server Error" });
   }
 };

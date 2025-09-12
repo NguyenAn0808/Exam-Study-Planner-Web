@@ -1,4 +1,4 @@
-import { TopicItem } from "./TopicItem";
+import { TopicCard } from "./TopicCard";
 import type { ITopic } from "@/types";
 
 interface TopicListProps {
@@ -17,7 +17,7 @@ export const TopicList = ({ topics }: TopicListProps) => {
   return (
     <div className="space-y-3">
       {topics.map((topic, index) => (
-        <TopicItem key={topic._id} topic={topic} index={index} />
+        <TopicCard key={topic._id} topic={topic} index={index} />
       ))}
     </div>
   );
