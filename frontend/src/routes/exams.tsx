@@ -16,29 +16,6 @@ export default function ExamsRoute() {
 
       <div className="grid gap-4">
         {/* Example exam card - we'll make this dynamic later */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Mathematics Final</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2">
-              <div className="flex justify-between">
-                <span className="text-sm text-muted-foreground">Date:</span>
-                <span className="text-sm font-medium">Sept 20, 2024</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-sm text-muted-foreground">Topics:</span>
-                <span className="text-sm font-medium">15/20 completed</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-sm text-muted-foreground">
-                  Time left:
-                </span>
-                <span className="text-sm font-medium">5 days</span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
       </div>
     </div>
   );

@@ -11,4 +11,9 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  server: {
+    hmr: {
+      clientPort: 5173, // Chỉ định rõ port mà client nên kết nối tới
+    },
+  },
 });

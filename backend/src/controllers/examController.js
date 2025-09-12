@@ -21,10 +21,58 @@ export const createNewExam = async (req, res) => {
 
 export const getAllExams = async (req, res) => {
   try {
-    const exams = await Exam.find().sort({ examDate: 1 });
-    res.status(200).json(exams);
+    const examsWithStats = await Exam.aggregate([
+      {
+        $lookup: {
+          from: "topics",
+          localField: "_id",
+          foreignField: "exam",
+          as: "topics",
+        },
+      },
+      {
+        $addFields: {
+          totalTopics: { $size: "$topics" },
+          completedTopics: {
+            $size: {
+              $filter: {
+                input: "$topics",
+                as: "topic",
+                cond: { $eq: ["$$topic.status", "Completed"] },
+              },
+            },
+          },
+        },
+      },
+      {
+        $addFields: {
+          progress: {
+            $cond: [
+              { $eq: ["$totalTopics", 0] },
+              0,
+              {
+                $multiply: [
+                  { $divide: ["$completedTopics", "$totalTopics"] },
+                  100,
+                ],
+              },
+            ],
+          },
+        },
+      },
+      {
+        $sort: { examDate: 1 },
+      },
+      {
+        $project: {
+          topics: 0,
+        },
+      },
+    ]);
+
+    res.status(200).json(examsWithStats);
   } catch (error) {
-    console.error("Error get all exams:", error);
+    console.error("Error getting all exams with aggregation:", error);
     res.status(500).json({ message: "Server Error" });
   }
 };

@@ -11,8 +11,8 @@ const app = express();
 const PORT = process.env.PORT || 5001;
 
 // Middleware
-app.use(cors()); // Enable CORS for all routes
 app.use(express.json());
+app.use(cors({ origin: ["http://localhost:5173"] })); // Enable CORS for front end
 
 // API Routes
 app.use("/api/exams", examRoutes);
@@ -22,7 +22,6 @@ app.use("/api/topics", topicRoutes);
 app.get("/", (req, res) => {
   res.send("Exam Study Planner API is running...");
 });
-
 
 connectDB().then(() => {
   app.listen(PORT, () => {

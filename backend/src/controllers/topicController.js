@@ -24,14 +24,50 @@ export const createNewTopic = async (req, res) => {
 export const getAllTopicsByExam = async (req, res) => {
   try {
     const { examID } = req.params;
-    // Add authentication later
 
-    const topics = await Topic.find({ exam: examID }).sort({
-      createdAt: "asc",
+    if (!mongoose.Types.ObjectId.isValid(examID)) {
+      return res.status(400).json({ message: "Invalid Exam ID" });
+    }
+
+    const aggregationResult = await Topic.aggregate([
+      {
+        $match: {
+          exam: new mongoose.Types.ObjectId(examID),
+        },
+      },
+      {
+        $facet: {
+          topics: [{ $sort: { createdAt: "asc" } }],
+          statusCounts: [
+            {
+              $group: {
+                _id: "$status",
+                count: { $sum: 1 },
+              },
+            },
+          ],
+        },
+      },
+    ]);
+
+    const result = aggregationResult[0];
+    const topics = result.topics;
+    const counts = {
+      "Not Started": 0,
+      "In-progress": 0,
+      Completed: 0,
+    };
+
+    result.statusCounts.forEach((item) => {
+      counts[item._id] = item.count;
     });
-    res.json(topics);
+
+    res.status(200).json({
+      topics,
+      counts,
+    });
   } catch (error) {
-    console.error("Error get topic by exam:", error);
+    console.error("Error getting topics by exam:", error);
     res.status(500).json({ message: "Server Error" });
   }
 };

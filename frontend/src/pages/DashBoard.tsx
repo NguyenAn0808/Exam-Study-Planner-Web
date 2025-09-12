@@ -46,10 +46,8 @@ export default function DashBoard() {
             <BookOpen className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">4</div>
-            <p className="text-xs text-muted-foreground">
-              2 upcoming this week
-            </p>
+            <div className="text-2xl font-bold">0</div>
+            <p className="text-xs text-muted-foreground">No upcoming exams</p>
           </CardContent>
         </Card>
 
@@ -59,10 +57,8 @@ export default function DashBoard() {
             <Clock className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">24.5h</div>
-            <p className="text-xs text-muted-foreground">
-              +2.5h from last week
-            </p>
+            <div className="text-2xl font-bold">0h</div>
+            <p className="text-xs text-muted-foreground">Start studying</p>
           </CardContent>
         </Card>
 
@@ -74,8 +70,8 @@ export default function DashBoard() {
             <Target className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">15/20</div>
-            <p className="text-xs text-muted-foreground">75% completion rate</p>
+            <div className="text-2xl font-bold">0/0</div>
+            <p className="text-xs text-muted-foreground">No topics yet</p>
           </CardContent>
         </Card>
 
@@ -85,8 +81,8 @@ export default function DashBoard() {
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">85%</div>
-            <p className="text-xs text-muted-foreground">+5% from yesterday</p>
+            <div className="text-2xl font-bold">0%</div>
+            <p className="text-xs text-muted-foreground">Start your journey</p>
           </CardContent>
         </Card>
       </div>
@@ -101,32 +97,16 @@ export default function DashBoard() {
             </Button>
           </CardHeader>
           <CardContent>
-            {/* Exam cards */}
-            <div className="space-y-4">
-              <div className="flex items-center justify-between p-4 border rounded-lg">
-                <div>
-                  <h3 className="font-semibold">Mathematics Final</h3>
-                  <p className="text-sm text-muted-foreground">
-                    15 topics remaining
-                  </p>
-                </div>
-                <div className="text-right">
-                  <p className="font-medium">Sept 20, 2024</p>
-                  <p className="text-sm text-muted-foreground">5 days left</p>
-                </div>
-              </div>
-              <div className="flex items-center justify-between p-4 border rounded-lg">
-                <div>
-                  <h3 className="font-semibold">Physics Midterm</h3>
-                  <p className="text-sm text-muted-foreground">
-                    8 topics remaining
-                  </p>
-                </div>
-                <div className="text-right">
-                  <p className="font-medium">Sept 25, 2024</p>
-                  <p className="text-sm text-muted-foreground">10 days left</p>
-                </div>
-              </div>
+            <div className="flex flex-col items-center justify-center h-[200px] text-center">
+              <BookOpen className="h-8 w-8 text-muted-foreground mb-4" />
+              <p className="text-muted-foreground">No exams scheduled yet</p>
+              <Button
+                variant="link"
+                className="mt-2"
+                onClick={() => navigate("/exams")}
+              >
+                Add your first exam
+              </Button>
             </div>
           </CardContent>
         </Card>
@@ -140,17 +120,16 @@ export default function DashBoard() {
             </Button>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              <div className="flex items-center gap-4">
-                <div className="h-2 w-2 rounded-full bg-primary" />
-                <div className="flex-1">
-                  <p className="text-sm font-medium">
-                    Completed "Integration" topic
-                  </p>
-                  <p className="text-xs text-muted-foreground">2 hours ago</p>
-                </div>
-              </div>
-              {/* Add more activity items */}
+            <div className="flex flex-col items-center justify-center h-[200px] text-center">
+              <Clock className="h-8 w-8 text-muted-foreground mb-4" />
+              <p className="text-muted-foreground">No recent activity</p>
+              <Button
+                variant="link"
+                className="mt-2"
+                onClick={() => navigate("/activity")}
+              >
+                Start studying
+              </Button>
             </div>
           </CardContent>
         </Card>
@@ -170,7 +149,19 @@ export default function DashBoard() {
             </Button>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">{/* Progress bars */}</div>
+            <div className="flex flex-col items-center justify-center h-[200px] text-center">
+              <Target className="h-8 w-8 text-muted-foreground mb-4" />
+              <p className="text-muted-foreground">
+                No progress data available
+              </p>
+              <Button
+                variant="link"
+                className="mt-2"
+                onClick={() => navigate("/progress")}
+              >
+                Set study goals
+              </Button>
+            </div>
           </CardContent>
         </Card>
 
@@ -183,7 +174,17 @@ export default function DashBoard() {
             </Button>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">{/* Schedule items */}</div>
+            <div className="flex flex-col items-center justify-center h-[200px] text-center">
+              <Calendar className="h-8 w-8 text-muted-foreground mb-4" />
+              <p className="text-muted-foreground">No scheduled sessions</p>
+              <Button
+                variant="link"
+                className="mt-2"
+                onClick={() => navigate("/schedule")}
+              >
+                Plan a session
+              </Button>
+            </div>
           </CardContent>
         </Card>
       </div>
