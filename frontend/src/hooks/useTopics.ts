@@ -1,10 +1,8 @@
-// src/hooks/useTopics.ts
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import api from "@/lib/axios";
 import type { ITopic, ITopicsWithCounts, TopicStatus } from "@/types";
 import { toast } from "sonner";
 
-// Các hàm gọi API, giữ ở dạng private bên trong module
 const fetchTopicsByExam = async (
   examID: string
 ): Promise<ITopicsWithCounts> => {
@@ -12,7 +10,7 @@ const fetchTopicsByExam = async (
   return data;
 };
 
-const createTopic = async ({
+const createTopicAPI = async ({
   name,
   examID,
 }: {
@@ -34,11 +32,10 @@ const updateTopicAPI = async (payload: {
 };
 
 const deleteTopicAPI = async (topicID: string) => {
-  const { data } = await api.delete(`/topics/${topicID}`);
-  return data;
+  await api.delete(`/topics/${topicID}`);
+  return { success: true, topicID };
 };
 
-// Custom hook
 export const useTopics = (examID: string) => {
   const queryClient = useQueryClient();
   const queryKey = ["topics", examID];
@@ -50,15 +47,16 @@ export const useTopics = (examID: string) => {
   });
 
   const { mutate: addTopic, isPending: isAdding } = useMutation({
-    mutationFn: createTopic,
+    mutationFn: createTopicAPI,
     onSuccess: (newTopic) => {
-      toast.success("Topic added!");
+      toast.success(`Topic "${newTopic.name}" added!`);
       queryClient.setQueryData<ITopicsWithCounts>(queryKey, (oldData) => {
-        if (!oldData)
+        if (!oldData) {
           return {
             topics: [newTopic],
             counts: { "Not Started": 1, "In-progress": 0, Completed: 0 },
           };
+        }
         return {
           ...oldData,
           topics: [newTopic, ...oldData.topics],
@@ -73,33 +71,72 @@ export const useTopics = (examID: string) => {
     onError: (err) => toast.error("Failed to add topic: " + err.message),
   });
 
-  const { mutate: updateStatus, isPending: isUpdatingStatus } = useMutation({
-    mutationFn: (vars: { topicID: string; status: TopicStatus }) =>
-      updateTopicAPI(vars),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey }),
-    onError: (err) => toast.error("Failed to update status: " + err.message),
-  });
+  const { mutate: updateTopic, isPending: isUpdating } = useMutation({
+    mutationFn: updateTopicAPI,
+    onMutate: async (updatedTopicData) => {
+      await queryClient.cancelQueries({ queryKey });
+      const previousTopicsData =
+        queryClient.getQueryData<ITopicsWithCounts>(queryKey);
 
-  const { mutate: updateTopicName, isPending: isUpdatingName } = useMutation({
-    mutationFn: (vars: { topicID: string; name: string }) =>
-      updateTopicAPI(vars),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey }),
-    onError: (err) =>
-      toast.error("Failed to update topic name: " + err.message),
+      queryClient.setQueryData<ITopicsWithCounts>(queryKey, (oldData) => {
+        if (!oldData) return oldData;
+
+        let oldStatus: TopicStatus | undefined;
+        const originalTopic = oldData.topics.find(
+          (t) => t._id === updatedTopicData.topicID
+        );
+        if (originalTopic) oldStatus = originalTopic.status;
+
+        const updatedTopics = oldData.topics.map((topic) =>
+          topic._id === updatedTopicData.topicID
+            ? { ...topic, ...updatedTopicData }
+            : topic
+        );
+
+        let updatedCounts = { ...oldData.counts };
+        const newStatus = updatedTopicData.status;
+
+        if (newStatus && oldStatus && newStatus !== oldStatus) {
+          if (updatedCounts[oldStatus] > 0) updatedCounts[oldStatus]--;
+          updatedCounts[newStatus] = (updatedCounts[newStatus] || 0) + 1;
+        }
+
+        return { ...oldData, topics: updatedTopics, counts: updatedCounts };
+      });
+
+      return { previousTopicsData };
+    },
+    onSuccess: () => {
+      toast.success("Topic updated!");
+    },
+    onError: (err, _, context) => {
+      toast.error("Update failed, rolling back.");
+      if (context?.previousTopicsData) {
+        queryClient.setQueryData(queryKey, context.previousTopicsData);
+      }
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey });
+      queryClient.invalidateQueries({ queryKey: ["exams"] });
+    },
   });
 
   const { mutate: deleteTopic, isPending: isDeleting } = useMutation({
     mutationFn: deleteTopicAPI,
-    onSuccess: (_, topicID) => {
+    onSuccess: (data) => {
+      const { topicID } = data;
       toast.success("Topic deleted!");
       queryClient.setQueryData<ITopicsWithCounts>(queryKey, (oldData) => {
         if (!oldData) return oldData;
+
         const deletedTopic = oldData.topics.find((t) => t._id === topicID);
         const updatedTopics = oldData.topics.filter((t) => t._id !== topicID);
         const updatedCounts = { ...oldData.counts };
+
         if (deletedTopic?.status && updatedCounts[deletedTopic.status] > 0) {
           updatedCounts[deletedTopic.status]--;
         }
+
         return { ...oldData, topics: updatedTopics, counts: updatedCounts };
       });
       queryClient.invalidateQueries({ queryKey: ["exams"] });
@@ -113,10 +150,8 @@ export const useTopics = (examID: string) => {
     isError,
     addTopic,
     isAdding,
-    updateStatus,
-    isUpdatingStatus,
-    updateTopicName,
-    isUpdatingName,
+    updateTopic,
+    isUpdating,
     deleteTopic,
     isDeleting,
   };

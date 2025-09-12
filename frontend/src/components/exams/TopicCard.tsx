@@ -21,9 +21,7 @@ interface TopicItemProps {
 
 export const TopicCard: React.FC<TopicItemProps> = React.memo(
   ({ topic, index }) => {
-    const { updateStatus, updateTopicName, deleteTopic } = useTopics(
-      topic.exam
-    );
+    const { updateTopic, deleteTopic } = useTopics(topic.exam);
 
     const [isEditing, setIsEditing] = useState(false);
     const [updatedName, setUpdatedName] = useState(topic.name);
@@ -34,12 +32,12 @@ export const TopicCard: React.FC<TopicItemProps> = React.memo(
       if (topic.status === "In-progress") nextStatus = "Completed";
       if (topic.status === "Completed") nextStatus = "Not Started";
 
-      updateStatus({ topicID: topic._id, status: nextStatus });
+      updateTopic({ topicID: topic._id, status: nextStatus });
     };
 
     const handleUpdateName = () => {
       if (updatedName.trim() && updatedName.trim() !== topic.name) {
-        updateTopicName({ topicID: topic._id, name: updatedName.trim() });
+        updateTopic({ topicID: topic._id, name: updatedName.trim() });
       }
       setIsEditing(false);
     };

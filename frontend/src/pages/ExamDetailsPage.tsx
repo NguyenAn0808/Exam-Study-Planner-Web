@@ -1,5 +1,3 @@
-// src/pages/ExamDetailPage.tsx
-
 import { useParams } from "react-router-dom";
 import { useTopics } from "@/hooks/useTopics";
 import { AddTopicForm } from "@/components/exams/AddTopicForm";

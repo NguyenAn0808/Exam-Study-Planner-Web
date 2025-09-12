@@ -1,5 +1,3 @@
-// src/components/exams/AddTopicForm.tsx
-
 import React, { useState } from "react";
 import { Card } from "../ui/card";
 import { Input } from "../ui/input";
