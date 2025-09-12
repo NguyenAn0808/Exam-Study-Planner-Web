@@ -36,9 +36,6 @@ const ExamDetailsPage = () => {
         <div className="w-full max-w-2xl p-6 mx-auto space-y-6">
           <div className="text-center">
             <h1 className="text-5xl font-bold text-gray-800">Study Topics</h1>
-            <p className="mt-2 text-lg text-muted-foreground">
-              Không có việc gì khó, chỉ sợ mình không làm 💪
-            </p>
           </div>
           <AddTopicForm
             onSubmit={(name) => addTopic({ name, examID: examId! })}

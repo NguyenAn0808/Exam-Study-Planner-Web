@@ -1,5 +1,3 @@
-// src/components/exams/TopicList.tsx
-
 import { TopicItem } from "./TopicItem";
 import type { ITopic } from "@/types";
 

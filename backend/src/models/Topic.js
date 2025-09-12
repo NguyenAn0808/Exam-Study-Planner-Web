@@ -20,6 +20,7 @@ const topicSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Exam",
       required: true,
+      index: true,
     },
   },
   {

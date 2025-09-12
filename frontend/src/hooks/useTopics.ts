@@ -6,7 +6,7 @@ import { toast } from "sonner";
 const fetchTopicsByExam = async (
   examID: string
 ): Promise<ITopicsWithCounts> => {
-  const { data } = await api.get(`/topic/exam/${examID}`);
+  const { data } = await api.get(`/exams/${examID}`);
   return data;
 };
 
@@ -28,7 +28,7 @@ const updateTopic = async ({
   topicID: string;
   status: TopicStatus;
 }): Promise<ITopic> => {
-  const { data } = await api.put(`/topics/${topicID}`, status);
+  const { data } = await api.put(`/topics/${topicID}`, { status });
   return data;
 };
 
