@@ -12,6 +12,7 @@ import {
 import { useTopics } from "@/hooks/useTopics";
 import { format } from "date-fns";
 import type { ITopic, TopicStatus } from "@/types";
+import { Input } from "../ui/input";
 
 interface TopicItemProps {
   topic: ITopic;
@@ -28,9 +29,9 @@ export const TopicCard: React.FC<TopicItemProps> = React.memo(
     const [updatedName, setUpdatedName] = useState(topic.name);
 
     const handleToggleStatus = () => {
-      let nextStatus: TopicStatus = "In Progress";
-      if (topic.status === "Not Started") nextStatus = "In Progress";
-      if (topic.status === "In Progress") nextStatus = "Completed";
+      let nextStatus: TopicStatus = "In-progress";
+      if (topic.status === "Not Started") nextStatus = "In-progress";
+      if (topic.status === "In-progress") nextStatus = "Completed";
       if (topic.status === "Completed") nextStatus = "Not Started";
 
       updateStatus({ topicID: topic._id, status: nextStatus });
@@ -103,7 +104,7 @@ export const TopicCard: React.FC<TopicItemProps> = React.memo(
           </div>
 
           {/* Edit and Delete */}
-          <div className="hidden gap-1 group-hover:flex animate-fade-in">
+          <div className="flex items-center gap-1">
             <Button
               variant="ghost"
               size="icon"

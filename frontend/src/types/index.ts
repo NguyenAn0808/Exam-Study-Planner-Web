@@ -1,4 +1,4 @@
-export type TopicStatus = "Not Started" | "In Progress" | "Completed";
+export type TopicStatus = "Not Started" | "In-progress" | "Completed";
 
 export interface ITopic {
   _id: string;
