@@ -4,6 +4,7 @@ import cors from "cors";
 import { connectDB } from "./config/db.js";
 import examRoutes from "./routes/examRoutes.js";
 import topicRoutes from "./routes/topicRoutes.js";
+import activityRoutes from "./routes/activityRoutes.js";
 
 dotenv.config();
 
@@ -17,6 +18,7 @@ app.use(cors({ origin: ["http://localhost:5173"] })); // Enable CORS for front e
 // API Routes
 app.use("/api/exams", examRoutes);
 app.use("/api/topics", topicRoutes);
+app.use("/api/activities", activityRoutes);
 
 // Basic route for checking server status
 app.get("/", (req, res) => {

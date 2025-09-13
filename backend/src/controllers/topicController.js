@@ -1,5 +1,6 @@
 import Topic from "../models/Topic.js";
 import Exam from "../models/Exam.js";
+import ActivityLog from "../models/ActivityLog.js";
 
 export const createNewTopic = async (req, res) => {
   try {
@@ -12,6 +13,12 @@ export const createNewTopic = async (req, res) => {
       // Add authorization check for the exam later
       const topic = new Topic({ name, exam: examID });
       const newTopic = await topic.save();
+
+      await new ActivityLog({
+        action: "CREATED_TOPIC",
+        details: newTopic.name,
+        examId: newTopic.exam,
+      }).save();
 
       res.status(201).json(newTopic);
     }
@@ -75,8 +82,16 @@ export const getAllTopicsByExam = async (req, res) => {
 export const updateTopic = async (req, res) => {
   try {
     const { name, status, completedAt } = req.body;
+    const topicID = req.params.id;
+
+    const originalTopic = await Topic.findById(topicID);
+    if (!originalTopic) {
+      return res.status(404).json({ message: "Topic not found" });
+    }
+    const oldStatus = originalTopic.status;
+
     const updatedTopic = await Topic.findByIdAndUpdate(
-      req.params.id,
+      topicID,
       { name, status, completedAt },
       { new: true, runValidators: true }
     );
@@ -84,6 +99,23 @@ export const updateTopic = async (req, res) => {
     if (!updatedTopic) {
       return res.status(404).json({ message: "Topic not found" });
     }
+
+    if (status && status !== oldStatus) {
+      if (status === "Completed") {
+        await new ActivityLog({
+          action: "COMPLETED_TOPIC",
+          details: updatedTopic.name,
+          examId: updatedTopic.exam,
+        }).save();
+      } else if (oldStatus === "Completed") {
+        await new ActivityLog({
+          action: "UNCOMPLETED_TOPIC",
+          details: updatedTopic.name,
+          examId: updatedTopic.exam,
+        }).save();
+      }
+    }
+
     res.status(200).json(updatedTopic);
   } catch (error) {
     console.error("Error update topic:", error);
@@ -98,9 +130,28 @@ export const deleteTopic = async (req, res) => {
     if (!deletedTopic) {
       return res.status(404).json({ message: "Topic not found" });
     }
+
+    await new ActivityLog({
+      action: "DELETED_TOPIC",
+      details: deletedTopic.name,
+      examId: deletedTopic.exam,
+    }).save();
     res.status(200).json({ message: "Topic deleted" });
   } catch (error) {
     console.error("Error deleting topic:", error);
+    res.status(500).json({ message: "Server Error" });
+  }
+};
+
+export const getAllTopics = async (req, res) => {
+  try {
+    const topics = await Topic.find({})
+      .sort({ createdAt: -1 })
+      .populate("exam", "title");
+
+    res.status(200).json(topics);
+  } catch (error) {
+    console.error("Error get all topics:", error);
     res.status(500).json({ message: "Server Error" });
   }
 };

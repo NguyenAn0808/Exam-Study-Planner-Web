@@ -1,3 +1,4 @@
+import ActivityLog from "../models/ActivityLog.js";
 import Exam from "../models/Exam.js";
 import Topic from "../models/Topic.js";
 import mongoose from "mongoose";
@@ -13,6 +14,11 @@ export const createNewExam = async (req, res) => {
     const exam = new Exam({ title, examDate, studyStartDate, endStudyDate });
 
     const newExam = await exam.save();
+    await new ActivityLog({
+      action: "CREATED_EXAM",
+      details: newExam.title,
+    }).save();
+
     res.status(201).json(newExam);
   } catch (error) {
     console.error("Error creating exam: ", error);
@@ -176,6 +182,12 @@ export const deleteExam = async (req, res) => {
     // Also delete all topics associated with this exam
     await Topic.deleteMany({ exam: req.params.id });
     await exam.deleteOne();
+
+    await new ActivityLog({
+      action: "DELETED_EXAM",
+      details: exam.title,
+      examId: exam._id,
+    }).save();
 
     res.status(200).json({ message: "Exam and associated topics deleted" });
   } catch (error) {
