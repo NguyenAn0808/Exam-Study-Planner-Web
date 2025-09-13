@@ -1,12 +1,10 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { PlusCircle } from "lucide-react";
+import { useModal } from "@/contexts/ModalContext";
 
-interface NavBarProps {
-  onAddNewExamClick: () => void;
-}
-
-export const Navbar = ({ onAddNewExamClick }: NavBarProps) => {
+export const Navbar = () => {
+  const { openCreateExamModal } = useModal();
   return (
     <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="flex h-14 items-center px-6">
@@ -15,7 +13,7 @@ export const Navbar = ({ onAddNewExamClick }: NavBarProps) => {
         </Link>
 
         <div className="ml-auto flex items-center gap-4">
-          <Button onClick={onAddNewExamClick} variant="default" size="sm">
+          <Button onClick={openCreateExamModal} variant="default" size="sm">
             <PlusCircle className="mr-2 h-4 w-4" />
             Add New Exam
           </Button>

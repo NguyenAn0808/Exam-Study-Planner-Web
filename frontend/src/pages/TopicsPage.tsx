@@ -1,9 +1,12 @@
-// src/pages/TopicsPage.tsx
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { CheckCircle } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useAllTopics } from "@/hooks/useAllTopics"; // Hook mới
+import { DataTable } from "@/components/topics/DataTable"; // Component mới
+import { columns } from "@/components/topics/Columns"; // Component mới
 
 export default function TopicsPage() {
+  const { data: topics, isLoading, isError } = useAllTopics();
+
   return (
     <div className="space-y-6">
       <div>
@@ -14,13 +17,16 @@ export default function TopicsPage() {
       </div>
       <Card>
         <CardHeader>
-          <CardTitle>Feature Under Development</CardTitle>
+          <CardTitle>Topic Management</CardTitle>
         </CardHeader>
-        <CardContent className="flex flex-col items-center justify-center text-center h-64">
-          <CheckCircle className="w-12 h-12 text-muted-foreground mb-4" />
-          <p className="text-muted-foreground">
-            A global topic management page is coming soon!
-          </p>
+        <CardContent>
+          {isLoading ? (
+            <Skeleton className="h-64 w-full" />
+          ) : isError ? (
+            <p className="text-destructive">Failed to load topics.</p>
+          ) : (
+            <DataTable columns={columns} data={topics || []} />
+          )}
         </CardContent>
       </Card>
     </div>

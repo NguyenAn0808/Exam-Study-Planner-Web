@@ -4,9 +4,11 @@ import { Navbar } from "../components/navigation/Navbar";
 import { Sidebar } from "../components/navigation/SideBar";
 import { CreateExamModal } from "@/components/exams/CreateExamModal";
 import { useExams } from "@/hooks/useExams";
+import { useModal } from "@/contexts/ModalContext";
 
 export const DashboardLayout = () => {
-  const [isCreateExamModalOpen, setCreateExamModalOpen] = useState(false);
+  const { isCreateExamModalOpen, closeCreateExamModal } = useModal();
+
   const { exams, isLoading } = useExams();
 
   const sidebarStats = useMemo(() => {
@@ -35,13 +37,9 @@ export const DashboardLayout = () => {
     };
   }, [exams, isLoading]);
 
-  const handleAddNewExamClick = () => {
-    setCreateExamModalOpen(true);
-  };
-
   return (
     <div className="min-h-screen bg-gray-50/50">
-      <Navbar onAddNewExamClick={handleAddNewExamClick} />
+      <Navbar />
       <div className="flex">
         <Sidebar stats={sidebarStats} />
         <main className="flex-1 p-6 overflow-auto">
@@ -52,7 +50,7 @@ export const DashboardLayout = () => {
       </div>
       <CreateExamModal
         isOpen={isCreateExamModalOpen}
-        onOpenChange={setCreateExamModalOpen}
+        onOpenChange={closeCreateExamModal}
       />
     </div>
   );

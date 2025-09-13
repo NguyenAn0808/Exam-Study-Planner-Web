@@ -39,3 +39,17 @@ export interface IExamWithStats {
   completedTopics: number;
   progress: number;
 }
+
+export interface IActivity {
+  _id: string;
+  action:
+    | "CREATED_EXAM"
+    | "DELETED_EXAM"
+    | "CREATED_TOPIC"
+    | "DELETED_TOPIC"
+    | "COMPLETED_TOPIC"
+    | "UNCOMPLETED_TOPIC";
+  details: string;
+  examId: string;
+  createdAt: string;
+}
