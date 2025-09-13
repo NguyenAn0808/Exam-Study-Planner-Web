@@ -1,15 +1,9 @@
-import { Link } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 import { useExams } from "@/hooks/useExams";
-import {
-  Card,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-  CardContent,
-} from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { format } from "date-fns";
-import { Progress } from "@/components/ui/progress";
+import { ExamCard } from "@/components/exams/ExamCard";
+import { Button } from "@/components/ui/button";
+import { BookOpen } from "lucide-react";
 
 const ExamsPage = () => {
   const { exams, isLoading } = useExams();
@@ -28,39 +22,38 @@ const ExamsPage = () => {
   }
 
   return (
-    <div>
-      <h1 className="text-3xl font-bold mb-6">My Exams</h1>
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-3xl font-bold">My Exams</h1>
+          <p className="text-muted-foreground">
+            Here are all your scheduled exams. Click on one to view its topics.
+          </p>
+        </div>
+        {/* Nút "Add New Exam" đã được đưa ra Navbar chung, nên không cần ở đây nữa */}
+      </div>
+
+      {/* Xử lý khi có dữ liệu hoặc không có dữ liệu */}
       {exams && exams.length > 0 ? (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {exams.map((exam) => (
-            <Link to={`/exams/${exam._id}`} key={exam._id} className="block">
-              <Card className="hover:border-primary transition-colors h-full">
-                <CardHeader>
-                  <CardTitle>{exam.title}</CardTitle>
-                  <CardDescription>
-                    Date: {format(new Date(exam.examDate), "PPP")}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-1">
-                    <p className="text-sm font-medium text-muted-foreground">
-                      Progress
-                    </p>
-                    <Progress value={exam.progress} />
-                    <p className="text-xs text-muted-foreground">
-                      {exam.completedTopics} / {exam.totalTopics} topics
-                      completed
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-            </Link>
+            <ExamCard key={exam._id} exam={exam} />
           ))}
         </div>
       ) : (
-        <p className="text-center text-muted-foreground mt-8">
-          No exams found. Add your first one from the header!
-        </p>
+        // Trạng thái Rỗng (Empty State)
+        <div className="flex flex-col items-center justify-center text-center border-2 border-dashed rounded-lg p-12 mt-8">
+          <BookOpen className="h-12 w-12 text-muted-foreground mb-4" />
+          <h2 className="text-xl font-semibold">No Exams Found</h2>
+          <p className="text-muted-foreground mt-2 mb-4">
+            It looks like you haven't added any exams yet.
+          </p>
+          <Button onClick={() => Navigate("/")}>
+            {" "}
+            {/* Hoặc mở modal tạo Exam */}
+            Add Your First Exam
+          </Button>
+        </div>
       )}
     </div>
   );

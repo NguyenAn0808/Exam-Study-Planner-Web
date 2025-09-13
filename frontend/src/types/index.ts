@@ -30,3 +30,12 @@ export interface ITopicsWithCounts {
     Completed: number;
   };
 }
+
+export interface IExamWithStats {
+  _id: string;
+  title: string;
+  examDate: string;
+  totalTopics: number;
+  completedTopics: number;
+  progress: number;
+}

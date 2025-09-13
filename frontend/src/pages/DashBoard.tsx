@@ -1,41 +1,84 @@
+// src/pages/DashBoard.tsx
+
+import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Clock, Calendar, BookOpen, Target, TrendingUp } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  BookOpen,
+  Target,
+  TrendingUp,
+  Book,
+  Clock,
+  CheckCircle,
+} from "lucide-react";
+import { useExams } from "../hooks/useExams";
+import { UpcomingExamsTimeline } from "../components/dashboard/UpcomingExamsTimeline";
+import { StudyFocus } from "../components/dashboard/StudyFocus";
+import { cn } from "@/lib/utils";
 
 export default function DashBoard() {
   const navigate = useNavigate();
+  const { exams, isLoading } = useExams();
+
+  // Calculate overall statistics from all exams (including completed ones)
+  const stats = useMemo(() => {
+    if (isLoading || !exams) {
+      return {
+        totalExams: 0,
+        topicsCovered: 0,
+        totalTopics: 0,
+        overallProgress: 0,
+      };
+    }
+
+    const totalTopics = exams.reduce((sum, exam) => sum + exam.totalTopics, 0);
+    const topicsCovered = exams.reduce(
+      (sum, exam) => sum + exam.completedTopics,
+      0
+    );
+    const overallProgress =
+      totalTopics > 0 ? (topicsCovered / totalTopics) * 100 : 0;
+
+    return {
+      totalExams: exams.length,
+      topicsCovered,
+      totalTopics,
+      overallProgress: Math.round(overallProgress),
+    };
+  }, [exams, isLoading]);
+
+  // Create a memoized list of only active (incomplete) exams
+  const activeExams = useMemo(() => {
+    if (!exams) return [];
+    return exams.filter((exam) => exam.progress < 100);
+  }, [exams]);
+
+  // Base the dashboard components on the *active* exams list
+  const upcomingExams = useMemo(() => {
+    return activeExams.slice(0, 5);
+  }, [activeExams]);
+
+  const nearestExam = useMemo(() => {
+    if (activeExams.length === 0) return null;
+    return activeExams[0];
+  }, [activeExams]);
 
   const handleViewAllExams = () => {
     navigate("/exams");
   };
 
-  const handleViewAllActivity = () => {
-    navigate("/activity");
-  };
-
-  const handleViewProgressDetails = () => {
-    navigate("/progress");
-  };
-
-  const handleViewFullSchedule = () => {
-    navigate("/schedule");
-  };
-
   return (
     <div className="space-y-6">
-      {/* Header Section */}
+      {/* Header */}
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold">Dashboard</h1>
           <p className="text-muted-foreground">
-            Welcome back to your study planner!
+            Welcome back! Here's your study overview.
           </p>
         </div>
-        <Button variant="default" size="lg" onClick={handleViewFullSchedule}>
-          <Calendar className="mr-2 h-5 w-5" />
-          Plan New Study Session
-        </Button>
       </div>
 
       {/* Stats Overview */}
@@ -43,11 +86,17 @@ export default function DashBoard() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium">Total Exams</CardTitle>
-            <BookOpen className="h-4 w-4 text-muted-foreground" />
+            <Book className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">0</div>
-            <p className="text-xs text-muted-foreground">No upcoming exams</p>
+            {isLoading ? (
+              <Skeleton className="h-8 w-1/4 mt-1" />
+            ) : (
+              <div className="text-2xl font-bold">{stats.totalExams}</div>
+            )}
+            <p className="text-xs text-muted-foreground">
+              Exams to prepare for
+            </p>
           </CardContent>
         </Card>
 
@@ -58,7 +107,9 @@ export default function DashBoard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">0h</div>
-            <p className="text-xs text-muted-foreground">Start studying</p>
+            <p className="text-xs text-muted-foreground">
+              Track your study time
+            </p>
           </CardContent>
         </Card>
 
@@ -70,123 +121,98 @@ export default function DashBoard() {
             <Target className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">0/0</div>
-            <p className="text-xs text-muted-foreground">No topics yet</p>
+            {isLoading ? (
+              <Skeleton className="h-8 w-1/2 mt-1" />
+            ) : (
+              <div className="text-2xl font-bold">
+                {stats.topicsCovered}/{stats.totalTopics}
+              </div>
+            )}
+            <p className="text-xs text-muted-foreground">
+              Keep up the great work!
+            </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Progress</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Overall Progress
+            </CardTitle>
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">0%</div>
-            <p className="text-xs text-muted-foreground">Start your journey</p>
+            {isLoading ? (
+              <Skeleton className="h-8 w-1/4 mt-1" />
+            ) : (
+              <div className="text-2xl font-bold">{stats.overallProgress}%</div>
+            )}
+            <p className="text-xs text-muted-foreground">
+              Your journey is on track
+            </p>
           </CardContent>
         </Card>
       </div>
 
-      {/* Upcoming Exams and Recent Activity */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        <Card className="col-span-2">
-          <CardHeader className="flex items-center justify-between">
-            <CardTitle>Upcoming Exams</CardTitle>
-            <Button variant="ghost" size="sm" onClick={handleViewAllExams}>
-              View all
-            </Button>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-col items-center justify-center h-[200px] text-center">
-              <BookOpen className="h-8 w-8 text-muted-foreground mb-4" />
-              <p className="text-muted-foreground">No exams scheduled yet</p>
-              <Button
-                variant="link"
-                className="mt-2"
-                onClick={() => navigate("/exams")}
-              >
-                Add your first exam
+      {/* Main Content Area */}
+      <div className="grid lg:grid-cols-3 gap-6">
+        {/* Left Column: Dynamically spans based on whether there's an active exam */}
+        <div
+          className={cn(
+            "transition-all duration-300",
+            nearestExam ? "lg:col-span-2" : "lg:col-span-3"
+          )}
+        >
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <div>
+                <CardTitle>Upcoming Deadlines</CardTitle>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Active exams you need to prepare for.
+                </p>
+              </div>
+              <Button variant="ghost" size="sm" onClick={handleViewAllExams}>
+                View all
               </Button>
-            </div>
-          </CardContent>
-        </Card>
+            </CardHeader>
+            <CardContent>
+              {isLoading ? (
+                <div className="space-y-4">
+                  <Skeleton className="h-28 w-full rounded-lg" />
+                  <Skeleton className="h-28 w-full rounded-lg" />
+                </div>
+              ) : upcomingExams.length > 0 ? (
+                <UpcomingExamsTimeline exams={upcomingExams} />
+              ) : (
+                <div className="flex flex-col items-center justify-center h-[200px] text-center border-2 border-dashed rounded-lg">
+                  <CheckCircle className="h-10 w-10 text-green-500 mb-4" />
+                  <h3 className="text-lg font-semibold">All Caught Up!</h3>
+                  <p className="text-muted-foreground mt-1">
+                    {exams && exams.length > 0
+                      ? "You have completed all your scheduled exams."
+                      : "No exams scheduled yet."}
+                  </p>
+                  <Button
+                    variant="default"
+                    className="mt-4"
+                    onClick={() => {
+                      /* TODO: Open the Create Exam Modal */
+                    }}
+                  >
+                    Add a New Exam
+                  </Button>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
 
-        {/* Recent Activity */}
-        <Card>
-          <CardHeader className="flex items-center justify-between">
-            <CardTitle>Recent Activity</CardTitle>
-            <Button variant="ghost" size="sm" onClick={handleViewAllActivity}>
-              View all
-            </Button>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-col items-center justify-center h-[200px] text-center">
-              <Clock className="h-8 w-8 text-muted-foreground mb-4" />
-              <p className="text-muted-foreground">No recent activity</p>
-              <Button
-                variant="link"
-                className="mt-2"
-                onClick={() => navigate("/activity")}
-              >
-                Start studying
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Study Progress */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        <Card className="col-span-2">
-          <CardHeader className="flex items-center justify-between">
-            <CardTitle>Study Progress</CardTitle>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleViewProgressDetails}
-            >
-              View details
-            </Button>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-col items-center justify-center h-[200px] text-center">
-              <Target className="h-8 w-8 text-muted-foreground mb-4" />
-              <p className="text-muted-foreground">
-                No progress data available
-              </p>
-              <Button
-                variant="link"
-                className="mt-2"
-                onClick={() => navigate("/progress")}
-              >
-                Set study goals
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Schedule Preview */}
-        <Card>
-          <CardHeader className="flex items-center justify-between">
-            <CardTitle>This Week</CardTitle>
-            <Button variant="ghost" size="sm" onClick={handleViewFullSchedule}>
-              Full schedule
-            </Button>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-col items-center justify-center h-[200px] text-center">
-              <Calendar className="h-8 w-8 text-muted-foreground mb-4" />
-              <p className="text-muted-foreground">No scheduled sessions</p>
-              <Button
-                variant="link"
-                className="mt-2"
-                onClick={() => navigate("/schedule")}
-              >
-                Plan a session
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+        {/* Right Column: Only renders if there is an active exam to focus on */}
+        {!isLoading && nearestExam && (
+          <div className="lg:col-span-1 animate-fade-in">
+            <StudyFocus nearestExam={nearestExam} />
+          </div>
+        )}
       </div>
     </div>
   );
