@@ -5,11 +5,35 @@ import { Sidebar } from "../components/navigation/SideBar";
 import { CreateExamModal } from "@/components/exams/CreateExamModal";
 import { useExams } from "@/hooks/useExams";
 import { useModal } from "@/contexts/ModalContext";
+import { useAI } from "@/contexts/AIContext";
+import { QuestionModal } from "@/components/ai/QuestionModal";
+import { useGenerateQuestions } from "@/hooks/useGenerateQuestions";
 
 export const DashboardLayout = () => {
   const { isCreateExamModalOpen, closeCreateExamModal } = useModal();
 
   const { exams, isLoading } = useExams();
+
+  const {
+    isQuestionModalOpen,
+    closeQuestionModal,
+    activeTopicName,
+    questions,
+    setQuestions,
+  } = useAI();
+
+  const { mutate: generateQuestions, isPending: isGeneratingQuestions } =
+    useGenerateQuestions();
+
+  const handleGenerate = () => {
+    if (activeTopicName) {
+      generateQuestions(activeTopicName, {
+        onSuccess: (data) => {
+          setQuestions(data.questions); // Set the questions in context on success
+        },
+      });
+    }
+  };
 
   const sidebarStats = useMemo(() => {
     if (isLoading || !exams) {
@@ -51,6 +75,15 @@ export const DashboardLayout = () => {
       <CreateExamModal
         isOpen={isCreateExamModalOpen}
         onOpenChange={closeCreateExamModal}
+      />
+      {/* 6. Add the QuestionModal */}
+      <QuestionModal
+        isOpen={isQuestionModalOpen}
+        onOpenChange={closeQuestionModal}
+        topicName={activeTopicName}
+        questions={questions}
+        isLoading={isGeneratingQuestions}
+        onGenerate={handleGenerate}
       />
     </div>
   );

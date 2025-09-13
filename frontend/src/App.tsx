@@ -10,6 +10,7 @@ import ProgressPage from "./pages/ProgressPage";
 import SchedulePage from "./pages/SchedulePage";
 import NotFound from "./pages/NotFound";
 import { ModalProvider } from "./contexts/ModalContext";
+import { AIProvider } from "./contexts/AIContext";
 
 function App() {
   return (
@@ -17,18 +18,20 @@ function App() {
       <Toaster richColors position="bottom-right" />
       <BrowserRouter>
         <ModalProvider>
-          <Routes>
-            <Route path="/" element={<DashboardLayout />}>
-              <Route index element={<DashBoard />} />
-              <Route path="exams" element={<ExamsPage />} />
-              <Route path="exams/:examId" element={<ExamDetailsPage />} />
-              <Route path="topics" element={<TopicsPage />} />
-              <Route path="activity" element={<ActivityPage />} />
-              <Route path="progress" element={<ProgressPage />} />
-              <Route path="schedule" element={<SchedulePage />} />
-            </Route>
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+          <AIProvider>
+            <Routes>
+              <Route path="/" element={<DashboardLayout />}>
+                <Route index element={<DashBoard />} />
+                <Route path="exams" element={<ExamsPage />} />
+                <Route path="exams/:examId" element={<ExamDetailsPage />} />
+                <Route path="topics" element={<TopicsPage />} />
+                <Route path="activity" element={<ActivityPage />} />
+                <Route path="progress" element={<ProgressPage />} />
+                <Route path="schedule" element={<SchedulePage />} />
+              </Route>
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </AIProvider>
         </ModalProvider>
       </BrowserRouter>
     </>
