@@ -5,6 +5,7 @@ import { format, differenceInCalendarDays } from "date-fns";
 import type { IExamWithStats } from "@/types";
 import { ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { getDeadlineColor } from "@/lib/colorUtils";
 
 interface UpcomingExamsTimelineProps {
   exams: IExamWithStats[];
@@ -28,7 +29,7 @@ export const UpcomingExamsTimeline: React.FC<UpcomingExamsTimelineProps> = ({
         const examDate = new Date(exam.examDate);
         const daysLeft = differenceInCalendarDays(examDate, today);
         const progress = Math.round(exam.progress || 0);
-
+        const deadlineColor = getDeadlineColor(daysLeft);
         return (
           <div key={exam._id} className="flex gap-4">
             {/* Timeline Line & Dot */}
@@ -36,9 +37,7 @@ export const UpcomingExamsTimeline: React.FC<UpcomingExamsTimelineProps> = ({
               <div
                 className={cn(
                   "flex items-center justify-center w-8 h-8 rounded-full border-2",
-                  daysLeft <= 7
-                    ? "bg-red-100 border-red-500"
-                    : "bg-gray-100 border-gray-400"
+                  daysLeft <= 7 ? "border-red-500" : "border-gray-400"
                 )}
               >
                 <span
@@ -64,7 +63,7 @@ export const UpcomingExamsTimeline: React.FC<UpcomingExamsTimelineProps> = ({
                 <div
                   className={cn(
                     "text-sm font-semibold px-2 py-1 rounded",
-                    daysLeft <= 7 ? "text-red-700 bg-red-100" : "text-gray-600"
+                    deadlineColor
                   )}
                 >
                   {getDaysLeftText(daysLeft)}

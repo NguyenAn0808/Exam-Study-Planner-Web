@@ -7,25 +7,41 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { format } from "date-fns";
-import type { IExamWithStats } from "@/types"; // Giả sử bạn có type này
+import { format, differenceInCalendarDays } from "date-fns";
+import type { IExamWithStats } from "@/types";
+import { cn } from "@/lib/utils";
 
-interface ExamCardProps {
+interface IExamCardProps {
   exam: IExamWithStats;
 }
 
-export const ExamCard: React.FC<ExamCardProps> = ({ exam }) => {
+export const ExamCard: React.FC<IExamCardProps> = ({ exam }) => {
   const progress = Math.round(exam.progress || 0);
+  const today = new Date();
+  const examDate = new Date(exam.examDate);
+  const daysLeft = differenceInCalendarDays(examDate, today);
+
+  const isUrgent = daysLeft <= 3 && progress < 100;
 
   return (
-    <Link to={`/exams/${exam._id}`} className="block">
-      <Card className="hover:border-primary transition-colors h-full flex flex-col">
+    <Link to={`/exams/${exam._id}`} className="block h-full">
+      <Card
+        className={cn(
+          "hover:border-primary transition-colors h-full flex flex-col",
+          isUrgent && "border-2",
+          isUrgent && daysLeft <= 1 && "border-red-500 hover:border-red-600",
+          isUrgent &&
+            daysLeft > 1 &&
+            "border-orange-500 hover:border-orange-600"
+        )}
+      >
         <CardHeader>
-          <CardTitle className="truncate">{exam.title}</CardTitle>
-          <CardDescription>
-            Date: {format(new Date(exam.examDate), "PPP")}
-          </CardDescription>
+          <CardTitle className="truncate" title={exam.title}>
+            {exam.title}
+          </CardTitle>
+          <CardDescription>Date: {format(examDate, "PPP")}</CardDescription>
         </CardHeader>
+
         <CardContent className="mt-auto">
           <div className="space-y-1">
             <div className="flex justify-between items-center mb-1">
