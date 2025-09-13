@@ -14,6 +14,7 @@ export const createNewExam = async (req, res) => {
     const exam = new Exam({ title, examDate, studyStartDate, endStudyDate });
 
     const newExam = await exam.save();
+
     await new ActivityLog({
       action: "CREATED_EXAM",
       details: newExam.title,
@@ -46,6 +47,15 @@ export const getAllExams = async (req, res) => {
                 input: "$topics",
                 as: "topic",
                 cond: { $eq: ["$$topic.status", "Completed"] },
+              },
+            },
+          },
+          inProgressTopics: {
+            $size: {
+              $filter: {
+                input: "$topics",
+                as: "topic",
+                cond: { $eq: ["$$topic.status", "In-progress"] },
               },
             },
           },

@@ -37,6 +37,7 @@ export interface IExamWithStats {
   examDate: string;
   totalTopics: number;
   completedTopics: number;
+  inProgressTopics: number;
   progress: number;
 }
 
