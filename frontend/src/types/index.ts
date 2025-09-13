@@ -23,6 +23,9 @@ export interface IExam {
 }
 
 export interface ITopicsWithCounts {
+  _id: string;
+  title: string;
+  examDate: string;
   topics: ITopic[];
   counts: {
     "Not Started": number;

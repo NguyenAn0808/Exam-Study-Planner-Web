@@ -2,9 +2,9 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import api from "@/lib/axios";
-import type { IExam } from "@/types";
+import type { IExam, IExamWithStats } from "@/types";
 
-const fetchExams = async (): Promise<IExam[]> => {
+const fetchExams = async (): Promise<IExamWithStats[]> => {
   const { data } = await api.get("/exams");
   return data;
 };
@@ -25,7 +25,7 @@ export const useExams = () => {
     data: exams,
     isLoading,
     isError,
-  } = useQuery<IExam[]>({
+  } = useQuery<IExamWithStats[]>({
     queryKey: ["exams"],
     queryFn: fetchExams,
   });

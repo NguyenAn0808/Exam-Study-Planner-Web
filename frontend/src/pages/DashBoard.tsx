@@ -4,25 +4,27 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
-  BookOpen,
   Target,
   TrendingUp,
   Book,
-  Clock,
+  Activity,
   CheckCircle,
+  BookOpen,
 } from "lucide-react";
 import { useExams } from "../hooks/useExams";
 import { UpcomingExamsTimeline } from "../components/dashboard/UpcomingExamsTimeLine";
 import { StudyFocus } from "../components/dashboard/StudyFocus";
 import { cn } from "@/lib/utils";
+import { useModal } from "../contexts/ModalContext";
 
 export default function DashBoard() {
   const navigate = useNavigate();
-  const { exams, isLoading } = useExams();
+  const { openCreateExamModal } = useModal();
+  const { exams, isLoading: isLoadingExams } = useExams();
 
   // Calculate all necessary statistics for the dashboard
   const stats = useMemo(() => {
-    if (isLoading || !exams) {
+    if (isLoadingExams || !exams) {
       // Return a default state for loading or no data
       return {
         totalExams: 0,
@@ -30,22 +32,22 @@ export default function DashBoard() {
         topicsCovered: 0,
         totalTopics: 0,
         overallProgress: 0,
+        activeTopics: 0,
       };
     }
 
-    // Calculate the number of completed exams (progress is 100%)
     const completedExams = exams.filter((exam) => exam.progress >= 100).length;
-
-    // Calculate topic-based stats
     const totalTopics = exams.reduce((sum, exam) => sum + exam.totalTopics, 0);
     const topicsCovered = exams.reduce(
       (sum, exam) => sum + exam.completedTopics,
       0
     );
-
-    // Calculate overall progress based on topics for accuracy
     const overallProgress =
       totalTopics > 0 ? (topicsCovered / totalTopics) * 100 : 0;
+    const activeTopics = exams.reduce(
+      (sum, exam) => sum + exam.inProgressTopics,
+      0
+    );
 
     return {
       totalExams: exams.length,
@@ -53,19 +55,17 @@ export default function DashBoard() {
       topicsCovered,
       totalTopics,
       overallProgress: Math.round(overallProgress),
+      activeTopics,
     };
-  }, [exams, isLoading]);
+  }, [exams, isLoadingExams]);
 
-  // Filter out completed exams to only show actionable items in the main view
+  // Filter for active exams to display in the main content area
   const activeExams = useMemo(() => {
     if (!exams) return [];
     return exams.filter((exam) => exam.progress < 100);
   }, [exams]);
 
-  // Data for the timeline (first 5 active exams)
   const upcomingExams = useMemo(() => activeExams.slice(0, 5), [activeExams]);
-
-  // Data for the focus card (the single most urgent active exam)
   const nearestExam = useMemo(
     () => (activeExams.length > 0 ? activeExams[0] : null),
     [activeExams]
@@ -95,7 +95,7 @@ export default function DashBoard() {
             <Book className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            {isLoading ? (
+            {isLoadingExams ? (
               <Skeleton className="h-8 w-1/2 mt-1" />
             ) : (
               <div className="text-2xl font-bold">
@@ -108,12 +108,18 @@ export default function DashBoard() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Study Hours</CardTitle>
-            <Clock className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium">Active Topics</CardTitle>
+            <Activity className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">0h</div>
-            <p className="text-xs text-muted-foreground">Feature coming soon</p>
+            {isLoadingExams ? (
+              <Skeleton className="h-8 w-1/4 mt-1" />
+            ) : (
+              <div className="text-2xl font-bold">{stats.activeTopics}</div>
+            )}
+            <p className="text-xs text-muted-foreground">
+              Topics currently in progress
+            </p>
           </CardContent>
         </Card>
 
@@ -125,7 +131,7 @@ export default function DashBoard() {
             <Target className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            {isLoading ? (
+            {isLoadingExams ? (
               <Skeleton className="h-8 w-1/2 mt-1" />
             ) : (
               <div className="text-2xl font-bold">
@@ -144,7 +150,7 @@ export default function DashBoard() {
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            {isLoading ? (
+            {isLoadingExams ? (
               <Skeleton className="h-8 w-1/4 mt-1" />
             ) : (
               <div className="text-2xl font-bold">{stats.overallProgress}%</div>
@@ -177,7 +183,7 @@ export default function DashBoard() {
               </Button>
             </CardHeader>
             <CardContent>
-              {isLoading ? (
+              {isLoadingExams ? (
                 <div className="space-y-4">
                   <Skeleton className="h-28 w-full rounded-lg" />
                   <Skeleton className="h-28 w-full rounded-lg" />
@@ -196,9 +202,7 @@ export default function DashBoard() {
                   <Button
                     variant="default"
                     className="mt-4"
-                    onClick={() => {
-                      /* TODO: Open the Create Exam Modal */
-                    }}
+                    onClick={openCreateExamModal}
                   >
                     Add a New Exam
                   </Button>
@@ -207,10 +211,14 @@ export default function DashBoard() {
             </CardContent>
           </Card>
         </div>
-        {!isLoading && nearestExam && (
-          <div className="lg:col-span-1 animate-fade-in">
-            <StudyFocus nearestExam={nearestExam} />
-          </div>
+        {isLoadingExams ? (
+          <Skeleton className="h-64 w-full rounded-lg" />
+        ) : (
+          nearestExam && (
+            <div className="lg:col-span-1 animate-fade-in">
+              <StudyFocus nearestExam={nearestExam} />
+            </div>
+          )
         )}
       </div>
     </div>

@@ -9,8 +9,6 @@ import {
 
 const router = express.Router();
 
-// We will add authMiddleware later.
-
 router.route("/").post(createNewExam).get(getAllExams);
 
 router.route("/:id").get(getExamById).put(updateExam).delete(deleteExam);
