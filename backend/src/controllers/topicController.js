@@ -4,21 +4,24 @@ import ActivityLog from "../models/ActivityLog.js";
 
 export const createNewTopic = async (req, res) => {
   try {
-    const { name, examID } = req.body;
+    const { name, examID, estimatedMinutes } = req.body;
     const exam = await Exam.findById(examID);
+
+    if (
+      !estimatedMinutes ||
+      typeof estimatedMinutes !== "number" ||
+      estimatedMinutes <= 0
+    ) {
+      return res
+        .status(400)
+        .json({ message: "A valid estimated time in minutes is required." });
+    }
 
     if (!exam) {
       return res.status(404).json({ message: "Exam not found" });
     } else {
-      // Add authorization check for the exam later
-      const topic = new Topic({ name, exam: examID });
+      const topic = new Topic({ name, exam: examID, estimatedMinutes });
       const newTopic = await topic.save();
-
-      await new ActivityLog({
-        action: "CREATED_TOPIC",
-        details: newTopic.name,
-        examId: newTopic.exam,
-      }).save();
 
       res.status(201).json(newTopic);
     }
@@ -27,7 +30,6 @@ export const createNewTopic = async (req, res) => {
     res.status(500).json({ message: "Server Error" });
   }
 };
-
 export const getAllTopicsByExam = async (req, res) => {
   try {
     const { examID } = req.params;

@@ -12,6 +12,11 @@ const topicSchema = new mongoose.Schema(
       enum: ["Not Started", "In-progress", "Completed"],
       default: "Not Started",
     },
+    estimatedMinutes: {
+      type: Number,
+      required: true,
+      min: 1, // Must be at least 1 minute
+    },
     completedAt: {
       type: Date,
       default: null,

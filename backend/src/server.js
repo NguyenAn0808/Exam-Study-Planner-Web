@@ -6,6 +6,8 @@ import examRoutes from "./routes/examRoutes.js";
 import topicRoutes from "./routes/topicRoutes.js";
 import activityRoutes from "./routes/activityRoutes.js";
 import aiRoutes from "./routes/aiRoutes.js";
+import studySessionRoutes from "./routes/studySessionRoutes.js";
+import statsRoutes from "./routes/statsRoutes.js";
 
 dotenv.config();
 
@@ -21,6 +23,8 @@ app.use("/api/exams", examRoutes);
 app.use("/api/topics", topicRoutes);
 app.use("/api/activities", activityRoutes);
 app.use("/api/ai", aiRoutes);
+app.use("/api/sessions", studySessionRoutes);
+app.use("/api/stats", statsRoutes);
 
 // Basic route for checking server status
 app.get("/", (req, res) => {

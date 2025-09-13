@@ -3,14 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  Target,
-  TrendingUp,
-  Book,
-  Activity,
-  CheckCircle,
-  BookOpen,
-} from "lucide-react";
+import { Target, TrendingUp, Book, Activity, CheckCircle } from "lucide-react";
 import { useExams } from "../hooks/useExams";
 import { UpcomingExamsTimeline } from "../components/dashboard/UpcomingExamsTimeLine";
 import { StudyFocus } from "../components/dashboard/StudyFocus";

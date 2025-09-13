@@ -16,8 +16,10 @@ import { TopicStats } from "@/components/exams/TopicStats";
 import { TopicFilters } from "@/components/exams/TopicFilters";
 import { TopicPagination } from "@/components/exams/TopicPagination";
 import { BookOpen } from "lucide-react";
+import { LogStudySessionModal } from "@/components/sessions/LogStudySessionModal";
+import type { ITopic } from "@/types";
 
-const TOPICS_PER_PAGE = 5; // You can adjust this number
+const TOPICS_PER_PAGE = 5;
 
 const ExamDetailsPage = () => {
   const { examId } = useParams<{ examId: string }>();
@@ -27,11 +29,21 @@ const ExamDetailsPage = () => {
   const [filter, setFilter] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
 
+  // State to control the Log Session modal and track the selected topic
+  const [isLogSessionModalOpen, setLogSessionModalOpen] = useState(false);
+  const [selectedTopicForLog, setSelectedTopicForLog] = useState<ITopic | null>(
+    null
+  );
+
+  // This function is passed down to TopicCard to open the modal for a specific topic
+  const handleOpenLogTimeModal = (topic: ITopic) => {
+    setSelectedTopicForLog(topic);
+    setLogSessionModalOpen(true);
+  };
+
   // Memoized list of filtered topics
   const filteredTopics = useMemo(() => {
-    // Reset to page 1 whenever the data or filter changes to avoid being on a non-existent page
-    setCurrentPage(1);
-
+    setCurrentPage(1); // Reset to page 1 on filter change
     if (!data?.topics) return [];
     if (filter === "all") {
       return data.topics;
@@ -70,9 +82,11 @@ const ExamDetailsPage = () => {
         </p>
       </div>
 
-      {/* Add Topic Form - The primary action for this page */}
+      {/* Add Topic Form */}
       <AddTopicForm
-        onSubmit={(name) => addTopic({ name, examID: examId! })}
+        onSubmit={(name, estimatedMinutes) =>
+          addTopic({ name, examID: examId!, estimatedMinutes })
+        }
         isAdding={isAdding}
       />
 
@@ -85,7 +99,6 @@ const ExamDetailsPage = () => {
               Filter and browse through your topics for this exam.
             </CardDescription>
           </div>
-          {/* Filters are only shown if there are topics to filter */}
           {data && data.topics.length > 0 && (
             <TopicFilters filter={filter} setFilter={setFilter} />
           )}
@@ -94,7 +107,10 @@ const ExamDetailsPage = () => {
           {data && data.topics.length > 0 ? (
             <>
               <TopicStats counts={data.counts} />
-              <TopicList topics={visibleTopics} />
+              <TopicList
+                topics={visibleTopics}
+                onLogTimeClick={handleOpenLogTimeModal}
+              />
             </>
           ) : (
             // Empty State
@@ -109,7 +125,6 @@ const ExamDetailsPage = () => {
             </div>
           )}
         </CardContent>
-        {/* Pagination is only shown if there is more than one page */}
         {totalPages > 1 && (
           <CardFooter>
             <TopicPagination
@@ -120,6 +135,16 @@ const ExamDetailsPage = () => {
           </CardFooter>
         )}
       </Card>
+
+      {selectedTopicForLog && (
+        <LogStudySessionModal
+          isOpen={isLogSessionModalOpen}
+          onOpenChange={setLogSessionModalOpen}
+          examId={examId!}
+          examTitle={data?.title || ""}
+          topic={selectedTopicForLog}
+        />
+      )}
     </div>
   );
 };

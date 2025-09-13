@@ -9,6 +9,7 @@ import {
   SquarePen,
   Trash2,
   BrainCircuit,
+  Clock,
 } from "lucide-react";
 import { useTopics } from "@/hooks/useTopics";
 import { format } from "date-fns";
@@ -22,23 +23,30 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
+// Props interface defines what the component expects to receive
 interface TopicItemProps {
   topic: ITopic;
   index: number;
+  onLogTimeClick: (topic: ITopic) => void;
 }
 
 export const TopicCard: React.FC<TopicItemProps> = React.memo(
-  ({ topic, index }) => {
+  ({ topic, index, onLogTimeClick }) => {
+    // Hooks for data and state management
     const { updateTopic, deleteTopic, isUpdating, isDeleting } = useTopics(
       topic.exam
     );
     const { openQuestionModal } = useAI();
 
+    // Local state for UI interactions
     const [isEditing, setIsEditing] = useState(false);
     const [updatedName, setUpdatedName] = useState(topic.name);
 
+    // Derived boolean for clearer logic in JSX
     const canGenerateQuestions = topic.status === "In-progress";
+    const isOperationPending = isUpdating || isDeleting;
 
+    // --- Event Handlers ---
     const handleToggleStatus = () => {
       let nextStatus: TopicStatus;
       switch (topic.status) {
@@ -66,12 +74,9 @@ export const TopicCard: React.FC<TopicItemProps> = React.memo(
 
     const handleDelete = () => {
       if (window.confirm(`Are you sure you want to delete "${topic.name}"?`)) {
-        // Ensure this matches your mutation hook's expected variable type
-        deleteTopic(topic._id);
+        deleteTopic(topic._id); // Check your useTopics hook if this expects an object {topicID: ...}
       }
     };
-
-    const isOperationPending = isUpdating || isDeleting;
 
     return (
       <TooltipProvider>
@@ -102,7 +107,7 @@ export const TopicCard: React.FC<TopicItemProps> = React.memo(
               )}
             </Button>
 
-            {/* Topic Name and Date */}
+            {/* Topic Name (Display or Edit Input) */}
             <div className="flex-1 min-w-0">
               {isEditing ? (
                 <Input
@@ -134,7 +139,7 @@ export const TopicCard: React.FC<TopicItemProps> = React.memo(
               )}
             </div>
 
-            {/* Action Items Container */}
+            {/* Action Items Container (Right side) */}
             <div className="flex items-center gap-2 min-w-max">
               {topic.status === "In-progress" && (
                 <div className="hidden text-sm font-semibold text-blue-500 sm:block animate-pulse">
@@ -142,8 +147,24 @@ export const TopicCard: React.FC<TopicItemProps> = React.memo(
                 </div>
               )}
 
-              {/* Buttons appear on Hover */}
+              {/* Action Buttons (Appear on Hover) */}
               <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="size-8"
+                      onClick={() => onLogTimeClick(topic)}
+                    >
+                      <Clock className="size-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Log study time for this topic</p>
+                  </TooltipContent>
+                </Tooltip>
+
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <span tabIndex={0}>

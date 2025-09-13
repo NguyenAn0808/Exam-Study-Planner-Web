@@ -13,11 +13,17 @@ const fetchTopicsByExam = async (
 const createTopicAPI = async ({
   name,
   examID,
+  estimatedMinutes,
 }: {
   name: string;
   examID: string;
+  estimatedMinutes: number;
 }): Promise<ITopic> => {
-  const { data } = await api.post(`/topics`, { name, examID });
+  const { data } = await api.post(`/topics`, {
+    name,
+    examID,
+    estimatedMinutes,
+  });
   return data;
 };
 
@@ -53,6 +59,11 @@ export const useTopics = (examID: string) => {
       queryClient.setQueryData<ITopicsWithCounts>(queryKey, (oldData) => {
         if (!oldData) {
           return {
+            _id: examID,
+            title: "Exam Details",
+            examDate: new Date().toISOString(),
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
             topics: [newTopic],
             counts: { "Not Started": 1, "In-progress": 0, Completed: 0 },
           };
