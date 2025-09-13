@@ -1,4 +1,4 @@
-import { Navigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useExams } from "@/hooks/useExams";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ExamCard } from "@/components/exams/ExamCard";
@@ -7,6 +7,7 @@ import { BookOpen } from "lucide-react";
 
 const ExamsPage = () => {
   const { exams, isLoading } = useExams();
+  const navigate = useNavigate();
 
   if (isLoading) {
     return (
@@ -48,7 +49,7 @@ const ExamsPage = () => {
           <p className="text-muted-foreground mt-2 mb-4">
             It looks like you haven't added any exams yet.
           </p>
-          <Button onClick={() => Navigate("/")}>
+          <Button onClick={() => navigate("/")}>
             {" "}
             {/* Hoặc mở modal tạo Exam */}
             Add Your First Exam

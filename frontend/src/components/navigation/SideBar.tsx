@@ -14,7 +14,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 
-// Define the shape of the stats prop
+// Define the shape of the stats prop for TypeScript
 interface SidebarStats {
   examCount: number | null;
   topicsCompleted: number | null;
@@ -26,71 +26,82 @@ interface SidebarProps {
   stats: SidebarStats;
 }
 
+// Define navigation items in an array for easy mapping
 const navItems = [
   { href: "/", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/exams", label: "My Exams", statKey: "examCount" },
-  { href: "/hours", label: "Study Hours", statKey: "studyHours" },
-  { href: "/topics", label: "Topics", statKey: "topicsProgress" },
-  { href: "/schedule", label: "Schedule", statKey: "scheduleCount" },
+  { href: "/exams", label: "My Exams", icon: BookCopy, statKey: "examCount" },
+  { href: "/hours", label: "Study Hours", icon: Clock },
+  {
+    href: "/topics",
+    label: "Topics",
+    icon: CheckCircle,
+    statKey: "topicsProgress",
+  },
+  {
+    href: "/schedule",
+    label: "Schedule",
+    icon: Calendar,
+    statKey: "scheduleCount",
+  },
   { href: "/activity", label: "Activity", icon: Activity },
-  { href: "/progress", label: "Progress", statKey: "overallProgress" },
+  {
+    href: "/progress",
+    label: "Progress",
+    icon: TrendingUp,
+    statKey: "overallProgress",
+  },
 ];
 
 export const Sidebar = ({ stats }: SidebarProps) => {
+  // Helper function to render the correct stat or a skeleton loader
   const getStatDisplay = (key?: string) => {
-    if (!key || stats.examCount === null) {
-      // Use examCount as a loading indicator
-      return <Skeleton className="h-4 w-8" />;
+    // If stats haven't loaded yet, show a skeleton
+    if (stats.examCount === null) {
+      return <Skeleton className="h-4 w-10" />;
     }
 
+    // Otherwise, show the correct stat based on the key
     switch (key) {
       case "examCount":
         return stats.examCount;
       case "topicsProgress":
-        return `${stats.topicsCompleted}/${stats.totalTopics}`;
+        return `${stats.topicsCompleted ?? 0}/${stats.totalTopics ?? 0}`;
       case "overallProgress":
-        return `${stats.overallProgress}%`;
-      // Placeholder for future features
+        return `${stats.overallProgress ?? 0}%`;
+      // Placeholder for a future feature
       case "scheduleCount":
-        return 2; // Placeholder
+        return 2; // Example placeholder
       default:
         return null;
     }
   };
 
-  // A mapping of icons to components. Add more as needed.
-  const iconMap: { [key: string]: React.ElementType } = {
-    "My Exams": BookCopy,
-    "Study Hours": Clock,
-    Topics: CheckCircle,
-    Schedule: Calendar,
-    Progress: TrendingUp,
-  };
-
   return (
-    <aside className="w-64 border-r bg-background p-4 hidden md:block">
-      <nav className="flex flex-col gap-2">
+    <aside className="w-64 border-r bg-background p-4 hidden md:block shrink-0">
+      <nav className="flex flex-col gap-1">
         {navItems.map((item) => {
-          const Icon = item.icon || iconMap[item.label];
+          const Icon = item.icon;
           return (
             <NavLink
               key={item.label}
               to={item.href}
-              end // 'end' prop for Dashboard to not match other routes
+              // The 'end' prop ensures the Dashboard link isn't active for other routes
+              end={item.href === "/"}
               className={({ isActive }) =>
                 cn(
-                  "flex items-center justify-between gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary",
-                  isActive && "bg-muted text-primary"
+                  "flex items-center justify-between gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:bg-muted hover:text-primary",
+                  isActive && "bg-muted text-primary font-semibold"
                 )
               }
             >
               <div className="flex items-center gap-3">
-                <Icon className="h-4 w-4" />
-                {item.label}
+                <Icon className="h-5 w-5" />
+                <span className="text-sm">{item.label}</span>
               </div>
               {item.statKey && (
                 <Badge
                   variant={item.label === "Progress" ? "default" : "secondary"}
+                  className="text-xs"
                 >
                   {getStatDisplay(item.statKey)}
                 </Badge>

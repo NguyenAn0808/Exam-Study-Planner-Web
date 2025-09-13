@@ -1,20 +1,19 @@
 // src/layouts/DashboardLayout.tsx
 
-import { useState, useMemo } from "react"; // 1. Add useMemo
+import { useState, useMemo } from "react";
 import { Outlet } from "react-router-dom";
-import { Navbar } from "../components/navigation/Navbar";
-import { Sidebar } from "../components/navigation/Sidebar";
+import { Navbar } from "../components/navigation/Navbar"; // Assuming you have Navbar.tsx
+import { Sidebar } from "../components/navigation/SideBar"; // Assuming you have Sidebar.tsx
 import { CreateExamModal } from "@/components/exams/CreateExamModal";
-import { useExams } from "@/hooks/useExams"; // 2. Import useExams
+import { useExams } from "@/hooks/useExams";
 
 export const DashboardLayout = () => {
   const [isCreateExamModalOpen, setCreateExamModalOpen] = useState(false);
-  const { exams, isLoading } = useExams(); // 3. Fetch global exam data here
+  const { exams, isLoading } = useExams();
 
-  // 4. Calculate stats for the sidebar
+  // Calculate stats for the sidebar
   const sidebarStats = useMemo(() => {
     if (isLoading || !exams) {
-      // Return loading/default state
       return {
         examCount: null,
         topicsCompleted: null,
@@ -44,10 +43,9 @@ export const DashboardLayout = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gray-50/50">
       <Navbar onAddNewExamClick={handleAddNewExamClick} />
       <div className="flex">
-        {/* 5. Pass the calculated stats down to the Sidebar */}
         <Sidebar stats={sidebarStats} />
         <main className="flex-1 p-6 overflow-auto">
           <div className="mx-auto max-w-7xl">
@@ -55,7 +53,6 @@ export const DashboardLayout = () => {
           </div>
         </main>
       </div>
-
       <CreateExamModal
         isOpen={isCreateExamModalOpen}
         onOpenChange={setCreateExamModalOpen}

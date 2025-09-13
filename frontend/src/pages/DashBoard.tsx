@@ -14,7 +14,7 @@ import {
   CheckCircle,
 } from "lucide-react";
 import { useExams } from "../hooks/useExams";
-import { UpcomingExamsTimeline } from "../components/dashboard/UpcomingExamsTimeline";
+import { UpcomingExamsTimeline } from "../components/dashboard/UpcomingExamsTimeLine";
 import { StudyFocus } from "../components/dashboard/StudyFocus";
 import { cn } from "@/lib/utils";
 
@@ -22,7 +22,6 @@ export default function DashBoard() {
   const navigate = useNavigate();
   const { exams, isLoading } = useExams();
 
-  // Calculate overall statistics from all exams (including completed ones)
   const stats = useMemo(() => {
     if (isLoading || !exams) {
       return {
@@ -32,7 +31,6 @@ export default function DashBoard() {
         overallProgress: 0,
       };
     }
-
     const totalTopics = exams.reduce((sum, exam) => sum + exam.totalTopics, 0);
     const topicsCovered = exams.reduce(
       (sum, exam) => sum + exam.completedTopics,
@@ -40,7 +38,6 @@ export default function DashBoard() {
     );
     const overallProgress =
       totalTopics > 0 ? (topicsCovered / totalTopics) * 100 : 0;
-
     return {
       totalExams: exams.length,
       topicsCovered,
@@ -49,29 +46,19 @@ export default function DashBoard() {
     };
   }, [exams, isLoading]);
 
-  // Create a memoized list of only active (incomplete) exams
   const activeExams = useMemo(() => {
     if (!exams) return [];
     return exams.filter((exam) => exam.progress < 100);
   }, [exams]);
 
-  // Base the dashboard components on the *active* exams list
-  const upcomingExams = useMemo(() => {
-    return activeExams.slice(0, 5);
-  }, [activeExams]);
-
-  const nearestExam = useMemo(() => {
-    if (activeExams.length === 0) return null;
-    return activeExams[0];
-  }, [activeExams]);
-
-  const handleViewAllExams = () => {
-    navigate("/exams");
-  };
+  const upcomingExams = useMemo(() => activeExams.slice(0, 5), [activeExams]);
+  const nearestExam = useMemo(
+    () => (activeExams.length > 0 ? activeExams[0] : null),
+    [activeExams]
+  );
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold">Dashboard</h1>
@@ -81,7 +68,6 @@ export default function DashBoard() {
         </div>
       </div>
 
-      {/* Stats Overview */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
@@ -99,7 +85,6 @@ export default function DashBoard() {
             </p>
           </CardContent>
         </Card>
-
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium">Study Hours</CardTitle>
@@ -107,12 +92,9 @@ export default function DashBoard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">0h</div>
-            <p className="text-xs text-muted-foreground">
-              Track your study time
-            </p>
+            <p className="text-xs text-muted-foreground">Feature coming soon</p>
           </CardContent>
         </Card>
-
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium">
@@ -133,7 +115,6 @@ export default function DashBoard() {
             </p>
           </CardContent>
         </Card>
-
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium">
@@ -154,9 +135,7 @@ export default function DashBoard() {
         </Card>
       </div>
 
-      {/* Main Content Area */}
       <div className="grid lg:grid-cols-3 gap-6">
-        {/* Left Column: Dynamically spans based on whether there's an active exam */}
         <div
           className={cn(
             "transition-all duration-300",
@@ -171,7 +150,11 @@ export default function DashBoard() {
                   Active exams you need to prepare for.
                 </p>
               </div>
-              <Button variant="ghost" size="sm" onClick={handleViewAllExams}>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => navigate("/exams")}
+              >
                 View all
               </Button>
             </CardHeader>
@@ -206,8 +189,6 @@ export default function DashBoard() {
             </CardContent>
           </Card>
         </div>
-
-        {/* Right Column: Only renders if there is an active exam to focus on */}
         {!isLoading && nearestExam && (
           <div className="lg:col-span-1 animate-fade-in">
             <StudyFocus nearestExam={nearestExam} />

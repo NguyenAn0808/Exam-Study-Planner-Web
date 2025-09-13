@@ -1,32 +1,42 @@
+// src/App.tsx
+
 import { Toaster } from "sonner";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { DashboardLayout } from "./layouts/DashBoardLayout";
-import StudyHoursRoute from "./routes/hours";
-import TopicsRoute from "./routes/topics";
+import { DashboardLayout } from "./layouts/DashBoardLayout"; // Giả sử DashboardLayout ở layouts
+
+// Import tất cả các component trang từ thư mục "pages"
 import DashBoard from "./pages/DashBoard";
-import ActivityRoute from "@/routes/activity";
-import ProgressRoute from "@/routes/progress";
-import ScheduleRoute from "@/routes/schedule";
-import NotFound from "@/pages/NotFound";
-import ExamsPage from "./pages/ExamPage";
+import ExamsPage from "./pages/ExamsPage";
 import ExamDetailsPage from "./pages/ExamDetailsPage";
+import StudyHoursPage from "./pages/StudyHoursPage";
+import TopicsPage from "./pages/TopicsPage";
+import ActivityPage from "./pages/ActivityPage";
+import ProgressPage from "./pages/ProgressPage";
+import SchedulePage from "./pages/SchedulePage";
+import NotFound from "./pages/NotFound";
 
 function App() {
   return (
     <>
-      <Toaster richColors />
+      <Toaster richColors position="bottom-right" />
       <BrowserRouter>
         <Routes>
-          <Route element={<DashboardLayout />}>
+          {/* Layout chung cho tất cả các trang có sidebar và navbar */}
+          <Route path="/" element={<DashboardLayout />}>
+            {/* Trang Dashboard sẽ được hiển thị mặc định tại "/" */}
             <Route index element={<DashBoard />} />
-            <Route path="/exams" element={<ExamsPage />} />
-            <Route path="/exams/:examId" element={<ExamDetailsPage />} />
-            <Route path="/hours" element={<StudyHoursRoute />} />
-            <Route path="/topics" element={<TopicsRoute />} />
-            <Route path="/activity" element={<ActivityRoute />} />
-            <Route path="/progress" element={<ProgressRoute />} />
-            <Route path="/schedule" element={<ScheduleRoute />} />
+
+            {/* Các trang con */}
+            <Route path="exams" element={<ExamsPage />} />
+            <Route path="exams/:examId" element={<ExamDetailsPage />} />
+            <Route path="hours" element={<StudyHoursPage />} />
+            <Route path="topics" element={<TopicsPage />} />
+            <Route path="activity" element={<ActivityPage />} />
+            <Route path="progress" element={<ProgressPage />} />
+            <Route path="schedule" element={<SchedulePage />} />
           </Route>
+
+          {/* Route cho trang 404 Not Found */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
