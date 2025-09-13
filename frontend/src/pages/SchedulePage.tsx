@@ -1,5 +1,3 @@
-// src/pages/SchedulePage.tsx
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Calendar } from "lucide-react";
 

@@ -31,10 +31,8 @@ const ExamsPage = () => {
             Here are all your scheduled exams. Click on one to view its topics.
           </p>
         </div>
-        {/* Nút "Add New Exam" đã được đưa ra Navbar chung, nên không cần ở đây nữa */}
       </div>
 
-      {/* Xử lý khi có dữ liệu hoặc không có dữ liệu */}
       {exams && exams.length > 0 ? (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {exams.map((exam) => (
@@ -49,11 +47,7 @@ const ExamsPage = () => {
           <p className="text-muted-foreground mt-2 mb-4">
             It looks like you haven't added any exams yet.
           </p>
-          <Button onClick={() => navigate("/")}>
-            {" "}
-            {/* Hoặc mở modal tạo Exam */}
-            Add Your First Exam
-          </Button>
+          <Button onClick={() => navigate("/")}> Add Your First Exam</Button>
         </div>
       )}
     </div>

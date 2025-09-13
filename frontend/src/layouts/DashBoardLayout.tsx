@@ -1,9 +1,7 @@
-// src/layouts/DashboardLayout.tsx
-
 import { useState, useMemo } from "react";
 import { Outlet } from "react-router-dom";
-import { Navbar } from "../components/navigation/Navbar"; // Assuming you have Navbar.tsx
-import { Sidebar } from "../components/navigation/SideBar"; // Assuming you have Sidebar.tsx
+import { Navbar } from "../components/navigation/Navbar";
+import { Sidebar } from "../components/navigation/SideBar";
 import { CreateExamModal } from "@/components/exams/CreateExamModal";
 import { useExams } from "@/hooks/useExams";
 
@@ -11,7 +9,6 @@ export const DashboardLayout = () => {
   const [isCreateExamModalOpen, setCreateExamModalOpen] = useState(false);
   const { exams, isLoading } = useExams();
 
-  // Calculate stats for the sidebar
   const sidebarStats = useMemo(() => {
     if (isLoading || !exams) {
       return {

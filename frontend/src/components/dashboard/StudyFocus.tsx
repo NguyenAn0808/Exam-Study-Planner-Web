@@ -1,4 +1,3 @@
-// src/components/dashboard/StudyFocus.tsx
 import {
   Card,
   CardContent,

@@ -1,5 +1,3 @@
-// src/pages/DashBoard.tsx
-
 import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -22,43 +20,62 @@ export default function DashBoard() {
   const navigate = useNavigate();
   const { exams, isLoading } = useExams();
 
+  // Calculate all necessary statistics for the dashboard
   const stats = useMemo(() => {
     if (isLoading || !exams) {
+      // Return a default state for loading or no data
       return {
         totalExams: 0,
+        completedExams: 0,
         topicsCovered: 0,
         totalTopics: 0,
         overallProgress: 0,
       };
     }
+
+    // Calculate the number of completed exams (progress is 100%)
+    const completedExams = exams.filter((exam) => exam.progress >= 100).length;
+
+    // Calculate topic-based stats
     const totalTopics = exams.reduce((sum, exam) => sum + exam.totalTopics, 0);
     const topicsCovered = exams.reduce(
       (sum, exam) => sum + exam.completedTopics,
       0
     );
+
+    // Calculate overall progress based on topics for accuracy
     const overallProgress =
       totalTopics > 0 ? (topicsCovered / totalTopics) * 100 : 0;
+
     return {
       totalExams: exams.length,
+      completedExams,
       topicsCovered,
       totalTopics,
       overallProgress: Math.round(overallProgress),
     };
   }, [exams, isLoading]);
 
+  // Filter out completed exams to only show actionable items in the main view
   const activeExams = useMemo(() => {
     if (!exams) return [];
     return exams.filter((exam) => exam.progress < 100);
   }, [exams]);
 
+  // Data for the timeline (first 5 active exams)
   const upcomingExams = useMemo(() => activeExams.slice(0, 5), [activeExams]);
+
+  // Data for the focus card (the single most urgent active exam)
   const nearestExam = useMemo(
     () => (activeExams.length > 0 ? activeExams[0] : null),
     [activeExams]
   );
 
+  const handleViewAllExams = () => navigate("/exams");
+
   return (
     <div className="space-y-6">
+      {/* Header */}
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold">Dashboard</h1>
@@ -68,23 +85,27 @@ export default function DashBoard() {
         </div>
       </div>
 
+      {/* Stats Overview */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Total Exams</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Completed Exams
+            </CardTitle>
             <Book className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             {isLoading ? (
-              <Skeleton className="h-8 w-1/4 mt-1" />
+              <Skeleton className="h-8 w-1/2 mt-1" />
             ) : (
-              <div className="text-2xl font-bold">{stats.totalExams}</div>
+              <div className="text-2xl font-bold">
+                {stats.completedExams}/{stats.totalExams}
+              </div>
             )}
-            <p className="text-xs text-muted-foreground">
-              Exams to prepare for
-            </p>
+            <p className="text-xs text-muted-foreground">Exams fully studied</p>
           </CardContent>
         </Card>
+
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium">Study Hours</CardTitle>
@@ -95,6 +116,7 @@ export default function DashBoard() {
             <p className="text-xs text-muted-foreground">Feature coming soon</p>
           </CardContent>
         </Card>
+
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium">
@@ -110,11 +132,10 @@ export default function DashBoard() {
                 {stats.topicsCovered}/{stats.totalTopics}
               </div>
             )}
-            <p className="text-xs text-muted-foreground">
-              Keep up the great work!
-            </p>
+            <p className="text-xs text-muted-foreground">Across all exams</p>
           </CardContent>
         </Card>
+
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium">
@@ -129,12 +150,13 @@ export default function DashBoard() {
               <div className="text-2xl font-bold">{stats.overallProgress}%</div>
             )}
             <p className="text-xs text-muted-foreground">
-              Your journey is on track
+              Based on topics completed
             </p>
           </CardContent>
         </Card>
       </div>
 
+      {/* Main Content Area */}
       <div className="grid lg:grid-cols-3 gap-6">
         <div
           className={cn(
@@ -150,11 +172,7 @@ export default function DashBoard() {
                   Active exams you need to prepare for.
                 </p>
               </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => navigate("/exams")}
-              >
+              <Button variant="ghost" size="sm" onClick={handleViewAllExams}>
                 View all
               </Button>
             </CardHeader>

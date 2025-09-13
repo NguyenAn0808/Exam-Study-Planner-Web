@@ -8,7 +8,6 @@ import { DashboardLayout } from "./layouts/DashBoardLayout"; // Giả sử Dashb
 import DashBoard from "./pages/DashBoard";
 import ExamsPage from "./pages/ExamsPage";
 import ExamDetailsPage from "./pages/ExamDetailsPage";
-import StudyHoursPage from "./pages/StudyHoursPage";
 import TopicsPage from "./pages/TopicsPage";
 import ActivityPage from "./pages/ActivityPage";
 import ProgressPage from "./pages/ProgressPage";
@@ -29,7 +28,6 @@ function App() {
             {/* Các trang con */}
             <Route path="exams" element={<ExamsPage />} />
             <Route path="exams/:examId" element={<ExamDetailsPage />} />
-            <Route path="hours" element={<StudyHoursPage />} />
             <Route path="topics" element={<TopicsPage />} />
             <Route path="activity" element={<ActivityPage />} />
             <Route path="progress" element={<ProgressPage />} />

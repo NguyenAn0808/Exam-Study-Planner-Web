@@ -1,5 +1,3 @@
-// src/pages/ActivityPage.tsx
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Activity } from "lucide-react";
 

@@ -1,5 +1,3 @@
-// src/components/navigation/Sidebar.tsx
-
 import { NavLink } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import {
@@ -30,7 +28,6 @@ interface SidebarProps {
 const navItems = [
   { href: "/", label: "Dashboard", icon: LayoutDashboard },
   { href: "/exams", label: "My Exams", icon: BookCopy, statKey: "examCount" },
-  { href: "/hours", label: "Study Hours", icon: Clock },
   {
     href: "/topics",
     label: "Topics",
@@ -85,7 +82,6 @@ export const Sidebar = ({ stats }: SidebarProps) => {
             <NavLink
               key={item.label}
               to={item.href}
-              // The 'end' prop ensures the Dashboard link isn't active for other routes
               end={item.href === "/"}
               className={({ isActive }) =>
                 cn(
