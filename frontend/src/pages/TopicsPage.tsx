@@ -1,8 +1,8 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useAllTopics } from "@/hooks/useAllTopics"; // Hook mới
-import { DataTable } from "@/components/topics/DataTable"; // Component mới
-import { columns } from "@/components/topics/Columns"; // Component mới
+import { useAllTopics } from "@/hooks/useAllTopics";
+import { DataTable } from "@/components/topics/DataTable";
+import { columns } from "@/components/topics/Columns";
 
 export default function TopicsPage() {
   const { data: topics, isLoading, isError } = useAllTopics();
