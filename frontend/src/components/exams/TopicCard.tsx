@@ -21,17 +21,28 @@ interface TopicItemProps {
 
 export const TopicCard: React.FC<TopicItemProps> = React.memo(
   ({ topic, index }) => {
-    const { updateTopic, deleteTopic } = useTopics(topic.exam);
+    const { updateTopic, deleteTopic, isUpdating, isDeleting } = useTopics(
+      topic.exam
+    );
 
     const [isEditing, setIsEditing] = useState(false);
     const [updatedName, setUpdatedName] = useState(topic.name);
 
     const handleToggleStatus = () => {
-      let nextStatus: TopicStatus = "In-progress";
-      if (topic.status === "Not Started") nextStatus = "In-progress";
-      if (topic.status === "In-progress") nextStatus = "Completed";
-      if (topic.status === "Completed") nextStatus = "Not Started";
-
+      let nextStatus: TopicStatus;
+      switch (topic.status) {
+        case "Not Started":
+          nextStatus = "In-progress";
+          break;
+        case "In-progress":
+          nextStatus = "Completed";
+          break;
+        case "Completed":
+          nextStatus = "Not Started";
+          break;
+        default:
+          nextStatus = "Not Started";
+      }
       updateTopic({ topicID: topic._id, status: nextStatus });
     };
 
@@ -48,29 +59,37 @@ export const TopicCard: React.FC<TopicItemProps> = React.memo(
       }
     };
 
+    const isOperationPending = isUpdating || isDeleting;
+
     return (
       <Card
         className={cn(
-          "p-4 bg-white border-0 shadow-md hover:shadow-lg transition-all duration-200 animate-fade-in group",
-          topic.status === "Completed" && "opacity-60"
+          "p-4 bg-white border-2 border-transparent shadow-md hover:shadow-lg transition-all duration-300 animate-fade-in group",
+          topic.status === "Completed" && "opacity-60 bg-slate-50",
+          topic.status === "In-progress" && "border-blue-400",
+          isOperationPending && "opacity-50 pointer-events-none" // Dim and disable card during operations
         )}
         style={{ animationDelay: `${index * 50}ms` }}
       >
         <div className="flex items-center gap-4">
+          {/* Status Toggle Button (Left side) */}
           <Button
             variant="ghost"
             size="icon"
             className="flex-shrink-0 size-8 rounded-full"
             onClick={handleToggleStatus}
+            disabled={isOperationPending}
           >
             {topic.status === "Completed" ? (
               <CheckCircle2 className="size-5 text-green-500" />
+            ) : topic.status === "In-progress" ? (
+              <Circle className="size-5 text-blue-500 fill-blue-500/20 animate-pulse" />
             ) : (
               <Circle className="size-5 text-muted-foreground" />
             )}
           </Button>
 
-          {/* Edit name */}
+          {/* Topic Name and Date (Middle part) */}
           <div className="flex-1 min-w-0">
             {isEditing ? (
               <Input
@@ -79,12 +98,13 @@ export const TopicCard: React.FC<TopicItemProps> = React.memo(
                 onBlur={handleUpdateName}
                 onKeyPress={(e) => e.key === "Enter" && handleUpdateName()}
                 autoFocus
+                disabled={isOperationPending}
               />
             ) : (
-              <>
+              <div>
                 <p
                   className={cn(
-                    "text-base",
+                    "text-base font-medium",
                     topic.status === "Completed" &&
                       "line-through text-muted-foreground"
                   )}
@@ -97,28 +117,40 @@ export const TopicCard: React.FC<TopicItemProps> = React.memo(
                     Added on {format(new Date(topic.createdAt), "P")}
                   </span>
                 </div>
-              </>
+              </div>
             )}
           </div>
 
-          {/* Edit and Delete */}
-          <div className="flex items-center gap-1">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="size-8"
-              onClick={() => setIsEditing(true)}
-            >
-              <SquarePen className="size-4" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="size-8 hover:bg-destructive/10 hover:text-destructive"
-              onClick={handleDelete}
-            >
-              <Trash2 className="size-4" />
-            </Button>
+          {/* Action Items Container (Right side) */}
+          <div className="flex items-center gap-2 min-w-max">
+            {/* "In Progress" Status Text */}
+            {topic.status === "In-progress" && (
+              <div className="hidden text-sm font-semibold text-blue-500 sm:block animate-pulse">
+                In Progress
+              </div>
+            )}
+
+            {/* Edit and Delete Buttons (Appear on Hover) */}
+            <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="size-8"
+                onClick={() => setIsEditing(true)}
+                disabled={isOperationPending || isEditing}
+              >
+                <SquarePen className="size-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="size-8 hover:bg-destructive/10 hover:text-destructive"
+                onClick={handleDelete}
+                disabled={isOperationPending}
+              >
+                <Trash2 className="size-4" />
+              </Button>
+            </div>
           </div>
         </div>
       </Card>
