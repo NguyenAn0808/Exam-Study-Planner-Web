@@ -1,6 +1,7 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useState, useMemo } from "react";
 import { useTopics } from "@/hooks/useTopics";
+import { useExams } from "@/hooks/useExams";
 import { AddTopicForm } from "@/components/exams/AddTopicForm";
 import { TopicList } from "@/components/exams/TopicList";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -12,14 +13,12 @@ import {
   CardTitle,
   CardFooter,
 } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { TopicStats } from "@/components/exams/TopicStats";
 import { TopicFilters } from "@/components/exams/TopicFilters";
-import { TopicPagination } from "@/components/exams/TopicPagination";
-import { BookOpen } from "lucide-react";
+import { BookOpen, Trash2, ArrowLeft } from "lucide-react";
 import { LogStudySessionModal } from "@/components/sessions/LogStudySessionModal";
 import type { ITopic } from "@/types";
-
-const TOPICS_PER_PAGE = 5;
 
 const ExamDetailsPage = () => {
   const { examId } = useParams<{ examId: string }>();
@@ -27,9 +26,8 @@ const ExamDetailsPage = () => {
   const { deleteExam, isDeleting } = useExams();
   const { data, isLoading, addTopic, isAdding } = useTopics(examId!);
 
-  // State for filtering and pagination
+  // State for filtering
   const [filter, setFilter] = useState("all");
-  const [currentPage, setCurrentPage] = useState(1);
 
   // State to control the Log Session modal and track the selected topic
   const [isLogSessionModalOpen, setLogSessionModalOpen] = useState(false);
@@ -55,20 +53,12 @@ const ExamDetailsPage = () => {
 
   // Memoized list of filtered topics
   const filteredTopics = useMemo(() => {
-    setCurrentPage(1); // Reset to page 1 on filter change
     if (!data?.topics) return [];
     if (filter === "all") {
       return data.topics;
     }
     return data.topics.filter((topic) => topic.status === filter);
   }, [data, filter]);
-
-  // Pagination calculations
-  const totalPages = Math.ceil(filteredTopics.length / TOPICS_PER_PAGE);
-  const visibleTopics = useMemo(() => {
-    const startIndex = (currentPage - 1) * TOPICS_PER_PAGE;
-    return filteredTopics.slice(startIndex, startIndex + TOPICS_PER_PAGE);
-  }, [filteredTopics, currentPage]);
 
   // Main component render logic
   if (isLoading) {
@@ -105,6 +95,7 @@ const ExamDetailsPage = () => {
           <Trash2 className="mr-2 h-4 w-4" /> Delete Exam
         </Button>
       </div>
+
       <div className="text-center">
         <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl">
           {data?.title || "Study Topics"}
@@ -140,7 +131,7 @@ const ExamDetailsPage = () => {
             <>
               <TopicStats counts={data.counts} />
               <TopicList
-                topics={visibleTopics}
+                topics={filteredTopics}
                 onLogTimeClick={handleOpenLogTimeModal}
               />
             </>
@@ -157,15 +148,6 @@ const ExamDetailsPage = () => {
             </div>
           )}
         </CardContent>
-        {totalPages > 1 && (
-          <CardFooter>
-            <TopicPagination
-              currentPage={currentPage}
-              totalPages={totalPages}
-              onPageChange={setCurrentPage}
-            />
-          </CardFooter>
-        )}
       </Card>
 
       {selectedTopicForLog && (
