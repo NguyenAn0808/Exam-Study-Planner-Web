@@ -17,6 +17,10 @@ const createExam = async (examData: {
   return data;
 };
 
+const deleteExam = async (examId: string): Promise<void> => {
+  await api.delete(`/exams/${examId}`);
+};
+
 export const useExams = () => {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
@@ -42,11 +46,25 @@ export const useExams = () => {
     },
   });
 
+  const { mutate: deleteExamMutation, isPending: isDeleting } = useMutation({
+    mutationFn: deleteExam,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["exams"] });
+      toast.success("Exam deleted successfully!");
+      navigate("/exams");
+    },
+    onError: (error) => {
+      toast.error("Failed to delete exam: " + error.message);
+    },
+  });
+
   return {
     exams,
     isLoading,
     isError,
     createExam: createExamMutation,
     isCreating,
+    deleteExam: deleteExamMutation,
+    isDeleting,
   };
 };

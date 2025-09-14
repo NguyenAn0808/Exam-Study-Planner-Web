@@ -3,7 +3,11 @@ import { cn } from "@/lib/utils";
 import {
   LayoutDashboard,
   BookCopy,
+  BookOpen,
   Clock,
+  ListChecks,
+  Target,
+  Activity as ActivityIcon,
   CheckCircle,
   Calendar,
   Activity,
@@ -11,6 +15,7 @@ import {
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useLocation } from "react-router-dom";
 
 // Define the shape of the stats prop for TypeScript
 interface SidebarStats {
@@ -21,91 +26,94 @@ interface SidebarStats {
 }
 
 interface SidebarProps {
-  stats: SidebarStats;
+  stats?: SidebarStats;
 }
 
-// Define navigation items in an array for easy mapping
-const navItems = [
-  { href: "/", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/exams", label: "My Exams", icon: BookCopy, statKey: "examCount" },
-  {
-    href: "/topics",
-    label: "Topics",
-    icon: CheckCircle,
-    statKey: "topicsProgress",
+export const Sidebar = ({
+  stats = {
+    examCount: null,
+    topicsCompleted: null,
+    totalTopics: null,
+    overallProgress: null,
   },
-  {
-    href: "/schedule",
-    label: "Schedule",
-    icon: Calendar,
-    statKey: "scheduleCount",
-  },
-  { href: "/activity", label: "Activity", icon: Activity },
-  {
-    href: "/progress",
-    label: "Progress",
-    icon: TrendingUp,
-    statKey: "overallProgress",
-  },
-];
+}: SidebarProps) => {
+  const { pathname } = useLocation();
 
-export const Sidebar = ({ stats }: SidebarProps) => {
-  // Helper function to render the correct stat or a skeleton loader
-  const getStatDisplay = (key?: string) => {
-    // If stats haven't loaded yet, show a skeleton
-    if (stats.examCount === null) {
-      return <Skeleton className="h-4 w-10" />;
-    }
-
-    // Otherwise, show the correct stat based on the key
-    switch (key) {
-      case "examCount":
-        return stats.examCount;
-      case "topicsProgress":
-        return `${stats.topicsCompleted ?? 0}/${stats.totalTopics ?? 0}`;
-      case "overallProgress":
-        return `${stats.overallProgress ?? 0}%`;
-      // Placeholder for a future feature
-      case "scheduleCount":
-        return 2; // Example placeholder
-      default:
-        return null;
-    }
-  };
+  const navItems = [
+    {
+      title: "Dashboard",
+      href: "/",
+      icon: LayoutDashboard,
+      badge: null,
+      active: pathname === "/",
+    },
+    {
+      title: "My Exams",
+      href: "/exams",
+      icon: BookOpen,
+      badge: stats.examCount,
+      active: pathname.startsWith("/exam"),
+    },
+    {
+      title: "Topics",
+      href: "/topics",
+      icon: ListChecks,
+      badge: stats.totalTopics
+        ? `${stats.topicsCompleted}/${stats.totalTopics}`
+        : null,
+      active: pathname === "/topics",
+    },
+    {
+      title: "Schedule",
+      href: "/schedule",
+      icon: Calendar,
+      badge: null,
+      active: pathname === "/schedule",
+    },
+    {
+      title: "Activity",
+      href: "/activity",
+      icon: ActivityIcon,
+      badge: null,
+      active: pathname === "/activity",
+    },
+    {
+      title: "Progress",
+      href: "/progress",
+      icon: TrendingUp,
+      badge: stats.overallProgress ? `${stats.overallProgress}%` : null,
+      active: pathname === "/progress",
+    },
+  ];
 
   return (
-    <aside className="w-64 border-r bg-background p-4 hidden md:block shrink-0">
-      <nav className="flex flex-col gap-1">
-        {navItems.map((item) => {
-          const Icon = item.icon;
-          return (
+    <aside className="hidden lg:block w-64 border-r bg-gray-50 p-6">
+      <div className="flex flex-col h-full">
+        <div className="space-y-1">
+          {navItems.map((item) => (
             <NavLink
-              key={item.label}
+              key={item.href}
               to={item.href}
-              end={item.href === "/"}
               className={({ isActive }) =>
                 cn(
-                  "flex items-center justify-between gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:bg-muted hover:text-primary",
-                  isActive && "bg-muted text-primary font-semibold"
+                  "flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors",
+                  isActive || item.active
+                    ? "bg-primary text-primary-foreground"
+                    : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
                 )
               }
             >
-              <div className="flex items-center gap-3">
-                <Icon className="h-5 w-5" />
-                <span className="text-sm">{item.label}</span>
-              </div>
-              {item.statKey && (
-                <Badge
-                  variant={item.label === "Progress" ? "default" : "secondary"}
-                  className="text-xs"
-                >
-                  {getStatDisplay(item.statKey)}
-                </Badge>
+              <item.icon className="h-4 w-4" />
+              <span>{item.title}</span>
+              {item.badge !== null && (
+                <span className="ml-auto bg-muted text-muted-foreground text-xs font-medium px-2 py-0.5 rounded-full">
+                  {item.badge}
+                </span>
               )}
             </NavLink>
-          );
-        })}
-      </nav>
+          ))}
+        </div>
+      </div>
     </aside>
   );
 };

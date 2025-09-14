@@ -11,7 +11,6 @@ import { useGenerateQuestions } from "@/hooks/useGenerateQuestions";
 
 export const DashboardLayout = () => {
   const { isCreateExamModalOpen, closeCreateExamModal } = useModal();
-
   const { exams, isLoading } = useExams();
 
   const {
@@ -29,7 +28,7 @@ export const DashboardLayout = () => {
     if (activeTopicName) {
       generateQuestions(activeTopicName, {
         onSuccess: (data) => {
-          setQuestions(data.questions); // Set the questions in context on success
+          setQuestions(data.questions);
         },
       });
     }
@@ -63,7 +62,7 @@ export const DashboardLayout = () => {
 
   return (
     <div className="min-h-screen bg-gray-50/50">
-      <Navbar />
+      <Navbar stats={sidebarStats} />
       <div className="flex">
         <Sidebar stats={sidebarStats} />
         <main className="flex-1 p-6 overflow-auto">
@@ -76,7 +75,6 @@ export const DashboardLayout = () => {
         isOpen={isCreateExamModalOpen}
         onOpenChange={closeCreateExamModal}
       />
-      {/* 6. Add the QuestionModal */}
       <QuestionModal
         isOpen={isQuestionModalOpen}
         onOpenChange={closeQuestionModal}

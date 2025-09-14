@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useState, useMemo } from "react";
 import { useTopics } from "@/hooks/useTopics";
 import { AddTopicForm } from "@/components/exams/AddTopicForm";
@@ -23,6 +23,8 @@ const TOPICS_PER_PAGE = 5;
 
 const ExamDetailsPage = () => {
   const { examId } = useParams<{ examId: string }>();
+  const navigate = useNavigate();
+  const { deleteExam, isDeleting } = useExams();
   const { data, isLoading, addTopic, isAdding } = useTopics(examId!);
 
   // State for filtering and pagination
@@ -39,6 +41,16 @@ const ExamDetailsPage = () => {
   const handleOpenLogTimeModal = (topic: ITopic) => {
     setSelectedTopicForLog(topic);
     setLogSessionModalOpen(true);
+  };
+
+  const handleDeleteExam = () => {
+    if (
+      window.confirm(
+        `Are you sure you want to delete "${data?.title}"? This will delete all associated topics and cannot be undone.`
+      )
+    ) {
+      deleteExam(examId!);
+    }
   };
 
   // Memoized list of filtered topics
@@ -73,6 +85,26 @@ const ExamDetailsPage = () => {
   return (
     <div className="space-y-8">
       {/* Page Header */}
+      <div className="flex items-center justify-between">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => navigate("/exams")}
+          className="mb-4"
+        >
+          <ArrowLeft className="mr-2 h-4 w-4" /> Back to Exams
+        </Button>
+
+        <Button
+          variant="destructive"
+          size="sm"
+          onClick={handleDeleteExam}
+          disabled={isDeleting}
+          className="mb-4"
+        >
+          <Trash2 className="mr-2 h-4 w-4" /> Delete Exam
+        </Button>
+      </div>
       <div className="text-center">
         <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl">
           {data?.title || "Study Topics"}
