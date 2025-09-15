@@ -9,7 +9,7 @@ import { useEffect, useState, useRef } from "react";
 import type { IExamWithStats } from "@/types";
 import { useIntersection } from "@/hooks/useIntersection";
 
-const ITEMS_PER_PAGE = 9;
+const ITEMS_PER_PAGE = 6; // Changed to show 6 items per page
 
 const ExamsPage = () => {
   const { exams, isLoading } = useExams();
@@ -48,12 +48,22 @@ const ExamsPage = () => {
 
   if (isLoading) {
     return (
-      <div>
-        <h1 className="text-3xl font-bold mb-6">My Exams</h1>
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          <Skeleton className="h-32" />
-          <Skeleton className="h-32" />
-          <Skeleton className="h-32" />
+      <div className="space-y-6">
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-3xl font-bold">My Exams</h1>
+            <p className="text-muted-foreground">
+              Manage all your exams in one place.
+            </p>
+          </div>
+          <Button onClick={openCreateExamModal} size="sm" disabled>
+            <Plus className="mr-2 h-4 w-4" /> Add New Exam
+          </Button>
+        </div>
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 auto-rows-fr">
+          {Array(6).fill(0).map((_, i) => (
+            <Skeleton key={i} className="h-[200px]" />
+          ))}
         </div>
       </div>
     );
@@ -75,7 +85,7 @@ const ExamsPage = () => {
 
       {exams && exams.length > 0 ? (
         <>
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 auto-rows-fr">
             {visibleExams.map((exam) => (
               <ExamCard key={exam._id} exam={exam} />
             ))}
@@ -83,7 +93,7 @@ const ExamsPage = () => {
 
           {/* Intersection observer target for infinite scroll */}
           {hasMore && (
-            <div ref={loadMoreRef} className="py-4 flex justify-center">
+            <div ref={loadMoreRef} className="py-6 flex justify-center">
               <Skeleton className="h-10 w-40" />
             </div>
           )}
