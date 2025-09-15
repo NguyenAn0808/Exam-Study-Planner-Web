@@ -10,20 +10,9 @@ import {
 } from "recharts";
 import type { IExamWithStats } from "@/types";
 import { useMemo } from "react";
-import { cn } from "@/lib/utils"; // Import cn just in case
 
 interface TopicsStatusPieChartProps {
   data: IExamWithStats[];
-}
-
-interface PieLabelRenderProps {
-  cx: number;
-  cy: number;
-  midAngle: number;
-  innerRadius: number;
-  outerRadius: number;
-  percent: number;
-  index: number;
 }
 
 const COLORS = {

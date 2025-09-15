@@ -4,13 +4,9 @@ import StudyHabitsForm from './StudyHabitsForm';
 import ExamPreferencesForm from './ExamPreferencesForm';
 import AdaptiveSettingsForm from './AdaptiveSettingsForm';
 
-interface PreferencesFormProps {
-  onSubmit: (preferences: StudentPreferences) => void;
-  className?: string;
-}
 
 const defaultStudentPreferences: StudentPreferences = {
-  studyHabits: {
+    studyHabits: {
     preferredStudyTime: 'morning',
     sessionDuration: 45,
     breakDuration: 15,

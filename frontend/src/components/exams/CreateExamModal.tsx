@@ -35,9 +35,7 @@ const formSchema = z.object({
   title: z.string().min(3, {
     message: "Exam title must be at least 3 characters.",
   }),
-  examDate: z.any().refine((val) => val instanceof Date, {
-    message: "An exam date is required.",
-  }),
+  examDate: z.date({ required_error: "An exam date is required." }),
 });
 
 interface CreateExamModalProps {
@@ -52,7 +50,7 @@ export const CreateExamModal: React.FC<CreateExamModalProps> = ({
   const { createExam, isCreating } = useExams();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: { title: "" },
+    defaultValues: { title: "", examDate: new Date() },
   });
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {

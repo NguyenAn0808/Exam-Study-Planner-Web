@@ -5,7 +5,7 @@ import { useExams } from "@/hooks/useExams";
 import { AddTopicForm } from "@/components/exams/AddTopicForm";
 import { TopicList } from "@/components/exams/TopicList";
 import { Skeleton } from "@/components/ui/skeleton";
-import { differenceInCalendarDays, format } from "date-fns";
+import { differenceInCalendarDays } from "date-fns";
 import {
   Card,
   CardContent,
@@ -163,7 +163,7 @@ export default function ExamDetailsPage() {
 
   // State for filtering
   const [filter, setFilter] = useState("all");
-  
+
   // State to control AI plan visualization
   const [aiPlanVisible, setAiPlanVisible] = useState(false);
 
@@ -172,11 +172,11 @@ export default function ExamDetailsPage() {
   const [selectedTopicForLog, setSelectedTopicForLog] = useState<ITopic | null>(
     null
   );
-  
+
   // Handle AI Study Plan generation
   const handleGeneratePlan = async () => {
     if (!data) return;
-    
+
     try {
       const preferences = {
         studyHabits: {
@@ -205,18 +205,17 @@ export default function ExamDetailsPage() {
           stressManagement: true,
         },
       };
-      
+
       await generateStudyPlan(preferences, new Date(data.examDate), data.title);
       setAiPlanVisible(true);
-      
+
       // Fetch updated data after plan generation
       setTimeout(() => {
         // This will refresh the page data to show newly added topics
         window.location.reload();
       }, 2000);
-      
     } catch (error) {
-      console.error('Error generating AI plan:', error);
+      console.error("Error generating AI plan:", error);
     }
   };
 
@@ -361,7 +360,8 @@ export default function ExamDetailsPage() {
               AI Study Plan
             </CardTitle>
             <CardDescription>
-              AI-generated study plan to help you prepare efficiently for your exam.
+              AI-generated study plan to help you prepare efficiently for your
+              exam.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -378,35 +378,51 @@ export default function ExamDetailsPage() {
                         {data.topics.length} topics
                       </p>
                     </div>
-                    
+
                     <div className="space-y-2">
                       {data.topics.map((topic) => (
-                        <div key={topic._id} className="flex items-center justify-between p-2 border-b">
+                        <div
+                          key={topic._id}
+                          className="flex items-center justify-between p-2 border-b"
+                        >
                           <div className="flex items-center gap-2">
-                            <div className={`h-2 w-2 rounded-full ${
-                              topic.status === "Completed" ? "bg-green-500" : 
-                              topic.status === "In-progress" ? "bg-amber-500" : "bg-gray-300"
-                            }`} />
+                            <div
+                              className={`h-2 w-2 rounded-full ${
+                                topic.status === "Completed"
+                                  ? "bg-green-500"
+                                  : topic.status === "In-progress"
+                                  ? "bg-amber-500"
+                                  : "bg-gray-300"
+                              }`}
+                            />
                             <span>{topic.name}</span>
                           </div>
                           <span className="text-sm text-muted-foreground">
-                            {Math.floor((topic.estimatedMinutes || 45) / 60)} hours {(topic.estimatedMinutes || 45) % 60} min
+                            {Math.floor((topic.estimatedMinutes || 45) / 60)}{" "}
+                            hours {(topic.estimatedMinutes || 45) % 60} min
                           </span>
                         </div>
                       ))}
                     </div>
                   </div>
                 ) : (
-                  <p className="text-muted-foreground">No topics available yet.</p>
+                  <p className="text-muted-foreground">
+                    No topics available yet.
+                  </p>
                 )}
               </div>
-              
+
               <div>
                 <h3 className="font-medium text-lg mb-3">Study Tips</h3>
                 <ul className="list-disc pl-5 space-y-2">
-                  <li>Start with the most challenging topics when your energy is highest</li>
+                  <li>
+                    Start with the most challenging topics when your energy is
+                    highest
+                  </li>
                   <li>Use active recall techniques for better retention</li>
-                  <li>Take regular breaks to maintain focus and productivity</li>
+                  <li>
+                    Take regular breaks to maintain focus and productivity
+                  </li>
                   <li>Review material frequently to reinforce learning</li>
                   <li>Create summary sheets for quick pre-exam review</li>
                 </ul>
@@ -415,7 +431,7 @@ export default function ExamDetailsPage() {
           </CardContent>
         </Card>
       )}
-      
+
       <Card className="shadow-lg">
         <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
           <div>

@@ -2,20 +2,14 @@ import { NavLink } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import {
   LayoutDashboard,
-  BookCopy,
   BookOpen,
   Clock,
   ListChecks,
   Target,
   Activity as ActivityIcon,
-  CheckCircle,
   Calendar,
-  Activity,
   TrendingUp,
-  Timer,
 } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
 import { useLocation } from "react-router-dom";
 
 // Define the shape of the stats prop for TypeScript

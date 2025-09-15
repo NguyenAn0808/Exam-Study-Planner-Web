@@ -9,7 +9,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { useExams } from "@/hooks/useExams";
-import { addDays, format, differenceInCalendarDays } from "date-fns";
+import { addDays, format } from "date-fns";
 import { useMemo } from "react";
 
 export const TopicCompletionForecast = () => {

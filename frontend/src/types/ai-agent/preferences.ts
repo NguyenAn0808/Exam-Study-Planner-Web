@@ -11,10 +11,10 @@ export interface StudyHabits {
   };
   usePomodoroTechnique: boolean;
   pomodoroSettings?: {
-    workMinutes: number;
-    shortBreakMinutes: number;
-    longBreakMinutes: number;
-    cyclesBeforeLongBreak: number;
+    workMinutes?: number;
+    shortBreakMinutes?: number;
+    longBreakMinutes?: number;
+    cyclesBeforeLongBreak?: number;
   };
 }
 

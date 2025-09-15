@@ -40,7 +40,7 @@ export class AIStudyAgent {
       if (this.subject.toLowerCase().includes("machine learning") || 
           (this.description && this.description.toLowerCase().includes("machine learning"))) {
         const topics = await generateTopicNames(this.subject, this.description || "", totalTopics);
-        return topics.map((topic, index) => ({
+        return topics.map((topic) => ({
           name: `${this.subject} - ${topic.name}`,
           estimatedMinutes: 45,
           priority: topic.priority as "high" | "medium" | "low",

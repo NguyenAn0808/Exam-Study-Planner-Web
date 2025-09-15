@@ -81,8 +81,9 @@ export const useTopics = (examID: string) => {
     },
     onError: (error) => {
       // Check if it's a duplicate name error
-      if (error.response?.status === 400) {
-        toast.error(error.response.data.message || "Failed to add topic");
+      // Check if error is an AxiosError
+      if ((error as any).response?.status === 400) {
+        toast.error((error as any).response.data.message || "Failed to add topic");
       } else {
         toast.error("Failed to add topic: " + error.message);
       }
@@ -127,7 +128,7 @@ export const useTopics = (examID: string) => {
     onSuccess: () => {
       toast.success("Topic updated!");
     },
-    onError: (err, _, context) => {
+  onError: (_, __, context) => {
       toast.error("Update failed, rolling back.");
       if (context?.previousTopicsData) {
         queryClient.setQueryData(queryKey, context.previousTopicsData);

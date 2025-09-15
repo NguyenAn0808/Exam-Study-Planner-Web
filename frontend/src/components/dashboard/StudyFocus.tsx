@@ -5,7 +5,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Target, AlertTriangle } from "lucide-react";
+import { AlertTriangle } from "lucide-react";
 import type { IExamWithStats } from "@/types";
 
 interface StudyFocusProps {

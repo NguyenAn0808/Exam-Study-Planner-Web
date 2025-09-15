@@ -1,4 +1,3 @@
-import { useNavigate } from "react-router-dom";
 import { useExams } from "@/hooks/useExams";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ExamCard } from "@/components/exams/ExamCard";
@@ -13,7 +12,6 @@ const ITEMS_PER_PAGE = 6; // Changed to show 6 items per page
 
 const ExamsPage = () => {
   const { exams, isLoading } = useExams();
-  const navigate = useNavigate();
   const { openCreateExamModal } = useModal();
 
   const [visibleExams, setVisibleExams] = useState<IExamWithStats[]>([]);
@@ -61,9 +59,11 @@ const ExamsPage = () => {
           </Button>
         </div>
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 auto-rows-fr">
-          {Array(6).fill(0).map((_, i) => (
-            <Skeleton key={i} className="h-[200px]" />
-          ))}
+          {Array(6)
+            .fill(0)
+            .map((_, i) => (
+              <Skeleton key={i} className="h-[200px]" />
+            ))}
         </div>
       </div>
     );

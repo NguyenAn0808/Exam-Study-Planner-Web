@@ -7,9 +7,8 @@ import { CheckCircle, ArrowRight, Plus } from "lucide-react";
 import { useExams } from "../hooks/useExams";
 import { VirtualizedExamsTimeline } from "../components/dashboard/VirtualizedExamsTimeline";
 import { useModal } from "../contexts/ModalContext";
-import { format, differenceInCalendarDays } from "date-fns";
+import { format } from "date-fns";
 import { Progress } from "@/components/ui/progress";
-import { cn } from "@/lib/utils";
 import { Link } from "react-router-dom";
 
 export default function DashBoard() {
