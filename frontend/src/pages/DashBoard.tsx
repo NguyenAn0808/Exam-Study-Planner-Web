@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { CheckCircle, ArrowRight } from "lucide-react";
+import { CheckCircle, ArrowRight, Plus } from "lucide-react";
 import { useExams } from "../hooks/useExams";
 import { VirtualizedExamsTimeline } from "../components/dashboard/VirtualizedExamsTimeline";
 import { useModal } from "../contexts/ModalContext";
@@ -74,11 +74,20 @@ export default function DashBoard() {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold">Dashboard</h1>
-        <p className="text-muted-foreground">
-          Welcome back! Here's your study overview.
-        </p>
+      {/* Header with AI Schedule Button */}
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-3xl font-bold">Dashboard</h1>
+          <p className="text-muted-foreground">
+            Welcome back! Here's your study overview.
+          </p>
+        </div>
+        <div className="flex gap-2">
+          <Button onClick={openCreateExamModal}>
+            <Plus className="h-4 w-4 mr-2" />
+            Add New Exam
+          </Button>
+        </div>
       </div>
 
       {/* Stats Overview */}
@@ -246,13 +255,12 @@ export default function DashBoard() {
                     ? "You have completed all your scheduled exams."
                     : "No exams scheduled yet."}
                 </p>
-                <Button
-                  variant="default"
-                  className="mt-4"
-                  onClick={openCreateExamModal}
-                >
-                  Add a New Exam
-                </Button>
+                <div className="flex gap-2">
+                  <Button onClick={openCreateExamModal}>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add New Exam
+                  </Button>
+                </div>
               </div>
             )}
           </CardContent>

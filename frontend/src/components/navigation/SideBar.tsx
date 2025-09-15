@@ -49,6 +49,13 @@ export const Sidebar = ({
       active: pathname === "/",
     },
     {
+      title: "AI Study Planner",
+      href: "/study-planner",
+      icon: Target,
+      badge: "New",
+      active: pathname === "/study-planner",
+    },
+    {
       title: "My Exams",
       href: "/exams",
       icon: BookOpen,

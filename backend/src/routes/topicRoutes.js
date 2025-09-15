@@ -11,8 +11,7 @@ const router = express.Router();
 
 // We will add authMiddleware later.
 
-router.route("/").post(createNewTopic);
+router.route("/").post(createNewTopic).get(getAllTopics); // Add get all topics to root route
 router.route("/exam/:examID").get(getAllTopicsByExam);
 router.route("/:id").put(updateTopic).delete(deleteTopic);
-router.route("/all").get(getAllTopics);
 export default router;

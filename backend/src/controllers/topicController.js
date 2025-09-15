@@ -1,6 +1,7 @@
 import Topic from "../models/Topic.js";
 import Exam from "../models/Exam.js";
 import ActivityLog from "../models/ActivityLog.js";
+import mongoose from "mongoose";
 
 export const createNewTopic = async (req, res) => {
   try {
@@ -57,7 +58,7 @@ export const getAllTopicsByExam = async (req, res) => {
       },
       {
         $facet: {
-          topics: [{ $sort: { createdAt: "asc" } }],
+          topics: [{ $sort: { createdAt: 1 } }],
           statusCounts: [
             {
               $group: {
@@ -82,10 +83,38 @@ export const getAllTopicsByExam = async (req, res) => {
       counts[item._id] = item.count;
     });
 
-    res.status(200).json({
-      topics,
-      counts,
-    });
+    // Get exam details
+    const exam = await Exam.findById(examID);
+    if (!exam) {
+      return res.status(404).json({ message: "Exam not found" });
+    }
+
+    // Return complete response matching ITopicsWithCounts interface
+    const response = {
+      _id: exam._id.toString(),
+      title: exam.title,
+      examDate: exam.examDate,
+      studyDate: exam.studyStartDate || null,
+      endStudyDate: exam.endStudyDate || null,
+      isAIGenerated: exam.isAIGenerated || false,
+      topics: topics.map((topic) => ({
+        ...topic,
+        _id: topic._id.toString(),
+        name: topic.name,
+        status: topic.status || "Not Started",
+        exam: topic.exam.toString(),
+        createdAt: topic.createdAt,
+        updatedAt: topic.updatedAt,
+        estimatedMinutes: topic.estimatedMinutes || 0,
+      })),
+      counts: {
+        "Not Started": counts["Not Started"] || 0,
+        "In-progress": counts["In-progress"] || 0,
+        Completed: counts["Completed"] || 0,
+      },
+    };
+
+    res.status(200).json(response);
   } catch (error) {
     console.error("Error getting topics by exam:", error);
     res.status(500).json({ message: "Server Error" });

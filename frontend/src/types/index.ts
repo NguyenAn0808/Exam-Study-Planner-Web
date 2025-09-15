@@ -7,7 +7,7 @@ export interface ITopic {
   exam: string;
   createdAt: string;
   updatedAt: string;
-  estimatedMinutes?: number;  // Optional estimated minutes for study time
+  estimatedMinutes?: number; // Optional estimated minutes for study time
 }
 
 export interface IExam {
@@ -16,6 +16,7 @@ export interface IExam {
   examDate: string;
   studyDate?: string;
   endStudyDate?: string;
+  description?: string;
   createdAt: string;
   updatedAt: string;
   totalTopics: number;
@@ -28,6 +29,8 @@ export interface ITopicsWithCounts {
   title: string;
   examDate: string;
   studyDate?: string;
+  endStudyDate?: string;
+  isAIGenerated?: boolean;
   topics: ITopic[];
   counts: {
     "Not Started": number;
@@ -44,6 +47,7 @@ export interface IExamWithStats {
   completedTopics: number;
   inProgressTopics: number;
   progress: number;
+  isAIGenerated?: boolean;
 }
 
 export interface IActivity {

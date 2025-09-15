@@ -10,6 +10,7 @@ import ProgressPage from "./pages/ProgressPage";
 import SchedulePage from "./pages/SchedulePage";
 import TimeManagementPage from "./pages/TimeManagementPage";
 import NotFound from "./pages/NotFound";
+import StudyPlannerPage from "./pages/StudyPlannerPage";
 import { ModalProvider } from "./contexts/ModalContext";
 import { AIProvider } from "./contexts/AIContext";
 
@@ -30,6 +31,7 @@ function App() {
                 <Route path="progress" element={<ProgressPage />} />
                 <Route path="schedule" element={<SchedulePage />} />
                 <Route path="time" element={<TimeManagementPage />} />
+              <Route path="study-planner" element={<StudyPlannerPage />} />
               </Route>
               <Route path="*" element={<NotFound />} />
             </Routes>

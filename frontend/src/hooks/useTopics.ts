@@ -6,7 +6,7 @@ import { toast } from "sonner";
 const fetchTopicsByExam = async (
   examID: string
 ): Promise<ITopicsWithCounts> => {
-  const { data } = await api.get(`/exams/${examID}`);
+  const { data } = await api.get(`/topics/exam/${examID}`);
   return data;
 };
 
@@ -80,13 +80,13 @@ export const useTopics = (examID: string) => {
       queryClient.invalidateQueries({ queryKey: ["exams"] });
     },
     onError: (error) => {
-    // Check if it's a duplicate name error
-    if (error.response?.status === 400) {
-      toast.error(error.response.data.message || "Failed to add topic");
-    } else {
-      toast.error("Failed to add topic: " + error.message);
-    }
-  }
+      // Check if it's a duplicate name error
+      if (error.response?.status === 400) {
+        toast.error(error.response.data.message || "Failed to add topic");
+      } else {
+        toast.error("Failed to add topic: " + error.message);
+      }
+    },
   });
 
   const { mutate: updateTopic, isPending: isUpdating } = useMutation({

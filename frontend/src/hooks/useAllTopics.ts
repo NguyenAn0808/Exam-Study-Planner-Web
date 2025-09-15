@@ -6,7 +6,7 @@ export const useAllTopics = () => {
   return useQuery<ITopic[]>({
     queryKey: ["allTopics"],
     queryFn: async () => {
-      const { data } = await api.get("/topics/all");
+      const { data } = await api.get("/topics");
       return data;
     },
   });

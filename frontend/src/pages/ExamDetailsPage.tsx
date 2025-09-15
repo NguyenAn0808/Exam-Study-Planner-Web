@@ -25,7 +25,9 @@ import {
   CheckCircle,
   Clock,
   AlertTriangle,
+  Sparkles,
 } from "lucide-react";
+import { useAI } from "@/contexts/AIContext";
 import { LogStudySessionModal } from "@/components/sessions/LogStudySessionModal";
 import { cn } from "@/lib/utils";
 import type { ITopic, IExamWithStats } from "@/types";
@@ -157,15 +159,66 @@ export default function ExamDetailsPage() {
   const navigate = useNavigate();
   const { deleteExam, isDeleting } = useExams();
   const { data, isLoading, addTopic, isAdding } = useTopics(examId!);
+  const { generateStudyPlan, loading: isGeneratingPlan } = useAI();
 
   // State for filtering
   const [filter, setFilter] = useState("all");
+  
+  // State to control AI plan visualization
+  const [aiPlanVisible, setAiPlanVisible] = useState(false);
 
   // State to control the Log Session modal and track the selected topic
   const [isLogSessionModalOpen, setLogSessionModalOpen] = useState(false);
   const [selectedTopicForLog, setSelectedTopicForLog] = useState<ITopic | null>(
     null
   );
+  
+  // Handle AI Study Plan generation
+  const handleGeneratePlan = async () => {
+    if (!data) return;
+    
+    try {
+      const preferences = {
+        studyHabits: {
+          preferredStudyTime: "morning" as const,
+          sessionDuration: 45,
+          breakDuration: 15,
+          energyLevels: {
+            morning: "high" as const,
+            afternoon: "medium" as const,
+            evening: "medium" as const,
+          },
+          usePomodoroTechnique: true,
+        },
+        examPreferences: {
+          difficultyLevel: "intermediate" as const,
+          targetGrade: "A",
+          currentKnowledgeLevel: "intermediate" as const,
+          timeAvailablePerDay: 2,
+          stressLevel: "medium" as const,
+          confidenceLevel: "medium" as const,
+        },
+        adaptiveSettings: {
+          receiveReminders: true,
+          adjustForProcrastination: true,
+          difficultyAdjustment: "automatic" as const,
+          stressManagement: true,
+        },
+      };
+      
+      await generateStudyPlan(preferences, new Date(data.examDate), data.title);
+      setAiPlanVisible(true);
+      
+      // Fetch updated data after plan generation
+      setTimeout(() => {
+        // This will refresh the page data to show newly added topics
+        window.location.reload();
+      }, 2000);
+      
+    } catch (error) {
+      console.error('Error generating AI plan:', error);
+    }
+  };
 
   // This function is passed down to TopicCard to open the modal for a specific topic
   const handleOpenLogTimeModal = (topic: ITopic) => {
@@ -228,15 +281,28 @@ export default function ExamDetailsPage() {
           <ArrowLeft className="mr-2 h-4 w-4" /> Back to Exams
         </Button>
 
-        <Button
-          variant="destructive"
-          size="sm"
-          onClick={handleDeleteExam}
-          disabled={isDeleting}
-          className="mb-4"
-        >
-          <Trash2 className="mr-2 h-4 w-4" /> Delete Exam
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            variant="default"
+            size="sm"
+            onClick={handleGeneratePlan}
+            disabled={isGeneratingPlan}
+            className="mb-4 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700"
+          >
+            <Sparkles className="mr-2 h-4 w-4" />
+            {isGeneratingPlan ? "Generating..." : "Generate AI Study Plan"}
+          </Button>
+
+          <Button
+            variant="destructive"
+            size="sm"
+            onClick={handleDeleteExam}
+            disabled={isDeleting}
+            className="mb-4"
+          >
+            <Trash2 className="mr-2 h-4 w-4" /> Delete Exam
+          </Button>
+        </div>
       </div>
 
       <div className="text-center">
@@ -286,6 +352,70 @@ export default function ExamDetailsPage() {
       />
 
       {/* Topic List Management Card */}
+      {/* AI Study Plan Visualization */}
+      {aiPlanVisible && data && (
+        <Card className="shadow-lg mb-8 border-indigo-200">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Sparkles className="h-5 w-5 text-purple-500" />
+              AI Study Plan
+            </CardTitle>
+            <CardDescription>
+              AI-generated study plan to help you prepare efficiently for your exam.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div>
+                <h3 className="font-medium text-lg mb-3">Study Schedule</h3>
+                {data.topics.length > 0 ? (
+                  <div className="border rounded-md p-4">
+                    <div className="flex items-center justify-between mb-4">
+                      <p className="text-sm text-muted-foreground">
+                        Optimized schedule for {data.title}
+                      </p>
+                      <p className="text-sm font-medium">
+                        {data.topics.length} topics
+                      </p>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      {data.topics.map((topic) => (
+                        <div key={topic._id} className="flex items-center justify-between p-2 border-b">
+                          <div className="flex items-center gap-2">
+                            <div className={`h-2 w-2 rounded-full ${
+                              topic.status === "Completed" ? "bg-green-500" : 
+                              topic.status === "In-progress" ? "bg-amber-500" : "bg-gray-300"
+                            }`} />
+                            <span>{topic.name}</span>
+                          </div>
+                          <span className="text-sm text-muted-foreground">
+                            {Math.floor((topic.estimatedMinutes || 45) / 60)} hours {(topic.estimatedMinutes || 45) % 60} min
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <p className="text-muted-foreground">No topics available yet.</p>
+                )}
+              </div>
+              
+              <div>
+                <h3 className="font-medium text-lg mb-3">Study Tips</h3>
+                <ul className="list-disc pl-5 space-y-2">
+                  <li>Start with the most challenging topics when your energy is highest</li>
+                  <li>Use active recall techniques for better retention</li>
+                  <li>Take regular breaks to maintain focus and productivity</li>
+                  <li>Review material frequently to reinforce learning</li>
+                  <li>Create summary sheets for quick pre-exam review</li>
+                </ul>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+      
       <Card className="shadow-lg">
         <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
           <div>

@@ -17,6 +17,15 @@ const examSchema = new mongoose.Schema(
     endStudyDate: {
       type: Date,
     },
+    isAIGenerated: {
+      type: Boolean,
+      default: false,
+    },
+    description: {
+      type: String,
+      required: false,
+      trim: true,
+    },
   },
   {
     timestamps: true,
