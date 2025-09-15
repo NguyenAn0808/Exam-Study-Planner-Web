@@ -7,6 +7,7 @@ export interface ITopic {
   exam: string;
   createdAt: string;
   updatedAt: string;
+  estimatedMinutes?: number;  // Optional estimated minutes for study time
 }
 
 export interface IExam {

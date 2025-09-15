@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Card } from "../ui/card";
 import { cn } from "@/lib/utils";
 import { Button } from "../ui/button";
@@ -22,6 +22,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useTopicTimeAlert } from "@/hooks/useTopicTimeAlert";
 
 // Props interface defines what the component expects to receive
 interface TopicItemProps {
@@ -78,6 +79,28 @@ export const TopicCard: React.FC<TopicItemProps> = React.memo(
       }
     };
 
+    const { checkShouldStartStudying, generateTopicAlert } =
+      useTopicTimeAlert();
+    const [shouldStartNow, setShouldStartNow] = useState(false);
+
+    useEffect(() => {
+      // Check if this topic needs a time alert when card is initially rendered
+      if (topic.status === "Not Started" && !isOperationPending) {
+        const shouldStart = checkShouldStartStudying(topic);
+        setShouldStartNow(shouldStart);
+
+        // Only generate alert once when the component first mounts
+        if (shouldStart && index === 0) {
+          // Only show for the first visible topic
+          generateTopicAlert(topic);
+        }
+      }
+    }, [
+      // Remove dependencies that might cause re-triggering
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      topic._id, // Only react to topic ID changes, not every property
+    ]);
+
     return (
       <TooltipProvider>
         <Card
@@ -85,6 +108,9 @@ export const TopicCard: React.FC<TopicItemProps> = React.memo(
             "p-4 bg-white border-2 border-transparent shadow-md hover:shadow-lg transition-all duration-300 animate-fade-in group",
             topic.status === "Completed" && "opacity-60 bg-slate-50",
             topic.status === "In-progress" && "border-blue-400",
+            shouldStartNow &&
+              topic.status !== "Completed" &&
+              "border-amber-400",
             isOperationPending && "opacity-50 pointer-events-none"
           )}
           style={{ animationDelay: `${index * 50}ms` }}
@@ -144,6 +170,25 @@ export const TopicCard: React.FC<TopicItemProps> = React.memo(
               {topic.status === "In-progress" && (
                 <div className="hidden text-sm font-semibold text-blue-500 sm:block animate-pulse">
                   In Progress
+                </div>
+              )}
+              {shouldStartNow && topic.status !== "Completed" && (
+                <div className="hidden text-sm font-semibold text-amber-500 sm:flex items-center animate-pulse">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="w-4 h-4 mr-1 inline"
+                  >
+                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                    <line x1="12" y1="9" x2="12" y2="13" />
+                    <line x1="12" y1="17" x2="12.01" y2="17" />
+                  </svg>
+                  Start Now!
                 </div>
               )}
 
