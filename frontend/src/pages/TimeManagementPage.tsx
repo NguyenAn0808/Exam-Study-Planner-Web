@@ -47,7 +47,7 @@ export default function TimeManagementPage() {
       return {
         message: `This exam was due ${Math.abs(daysLeft)} day${
           Math.abs(daysLeft) !== 1 ? "s" : ""
-        } ago. Don't give up! Complete the remaining topics.`,
+        } ago. Don't give up! Try harder for the next one.`,
         type: "danger",
       };
     }

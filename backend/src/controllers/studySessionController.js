@@ -41,3 +41,14 @@ export const logStudySession = async (req, res) => {
     res.status(500).json({ message: "Server Error" });
   }
 };
+
+export const getStudySessions = async (req, res) => {
+  try {
+    const sessions = await StudySession.find({}).sort({ date: -1 }).limit(50);
+
+    res.status(200).json(sessions);
+  } catch (error) {
+    console.error("Error getting study sessions:", error);
+    res.status(500).json({ message: "Server Error" });
+  }
+};

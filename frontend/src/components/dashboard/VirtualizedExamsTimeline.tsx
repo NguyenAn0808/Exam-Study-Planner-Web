@@ -1,0 +1,131 @@
+import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
+import { format, differenceInCalendarDays } from "date-fns";
+import type { IExamWithStats } from "@/types";
+import { ArrowRight } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { getDeadlineColor } from "@/lib/colorUtils";
+import { useVirtualizer } from "@tanstack/react-virtual";
+import { useRef } from "react";
+
+interface VirtualizedExamsTimelineProps {
+  exams: IExamWithStats[];
+  height?: number;
+}
+
+const getDaysLeftText = (daysLeft: number) => {
+  if (daysLeft < 0) return "Overdue";
+  if (daysLeft === 0) return "Today!";
+  if (daysLeft === 1) return "1 day left";
+  return `${daysLeft} days left`;
+};
+
+export const VirtualizedExamsTimeline: React.FC<VirtualizedExamsTimelineProps> = ({
+  exams,
+  height = 400
+}) => {
+  const parentRef = useRef<HTMLDivElement>(null);
+  const today = new Date();
+
+  const virtualizer = useVirtualizer({
+    count: exams.length,
+    getScrollElement: () => parentRef.current,
+    estimateSize: () => 130, // Estimated height of each exam item
+    overscan: 5,
+  });
+
+  return (
+    <div 
+      ref={parentRef}
+      className="overflow-auto"
+      style={{
+        height,
+        width: '100%',
+        position: 'relative',
+      }}
+    >
+      <div
+        style={{
+          height: `${virtualizer.getTotalSize()}px`,
+          width: '100%',
+          position: 'relative',
+        }}
+      >
+        {virtualizer.getVirtualItems().map((virtualItem) => {
+          const exam = exams[virtualItem.index];
+          const examDate = new Date(exam.examDate);
+          const daysLeft = differenceInCalendarDays(examDate, today);
+          const progress = Math.round(exam.progress || 0);
+          const deadlineColor = getDeadlineColor(daysLeft);
+          
+          return (
+            <div
+              key={exam._id}
+              className="absolute top-0 left-0 w-full flex gap-4 px-1 py-3"
+              style={{
+                height: `${virtualItem.size}px`,
+                transform: `translateY(${virtualItem.start}px)`,
+              }}
+            >
+              {/* Timeline Line & Dot */}
+              <div className="flex flex-col items-center">
+                <div
+                  className={cn(
+                    "flex items-center justify-center w-8 h-8 rounded-full border-2",
+                    daysLeft <= 7 ? "border-red-500" : "border-gray-400"
+                  )}
+                >
+                  <span
+                    className={cn("font-bold", daysLeft <= 7 && "text-red-600")}
+                  >
+                    {daysLeft >= 0 ? daysLeft : "!"}
+                  </span>
+                </div>
+                {virtualItem.index < exams.length - 1 && (
+                  <div className="w-0.5 flex-1 bg-gray-300" />
+                )}
+              </div>
+
+              {/* Exam Details Card */}
+              <div className="flex-1 p-4 bg-white rounded-lg border shadow-sm">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <h3 className="font-bold text-lg">{exam.title}</h3>
+                    <p className="text-sm text-muted-foreground">
+                      {format(examDate, "PPP")}
+                    </p>
+                  </div>
+                  <div
+                    className={cn(
+                      "text-sm font-semibold px-2 py-1 rounded",
+                      deadlineColor
+                    )}
+                  >
+                    {getDaysLeftText(daysLeft)}
+                  </div>
+                </div>
+                <div className="mt-4 space-y-1">
+                  <div className="flex justify-between items-center">
+                    <p className="text-sm font-medium text-muted-foreground">
+                      Progress
+                    </p>
+                    <span className="text-sm font-bold">{progress}%</span>
+                  </div>
+                  <Progress value={progress} />
+                </div>
+                <div className="text-right mt-3">
+                  <Button asChild variant="ghost" size="sm">
+                    <Link to={`/exams/${exam._id}`}>
+                      View Topics <ArrowRight className="ml-2 h-4 w-4" />
+                    </Link>
+                  </Button>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+};

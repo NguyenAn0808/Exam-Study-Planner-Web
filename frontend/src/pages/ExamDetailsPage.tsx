@@ -1,9 +1,34 @@
+import { useParams, useNavigate } from "react-router-dom";
+import { useState, useMemo } from "react";
+import { useTopics } from "@/hooks/useTopics";
+import { useExams } from "@/hooks/useExams";
+import { AddTopicForm } from "@/components/exams/AddTopicForm";
+import { TopicList } from "@/components/exams/TopicList";
+import { Skeleton } from "@/components/ui/skeleton";
 import { differenceInCalendarDays, format } from "date-fns";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { AlertTriangle, CheckCircle, Clock } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { TopicStats } from "@/components/exams/TopicStats";
+import { TopicFilters } from "@/components/exams/TopicFilters";
+import {
+  BookOpen,
+  Trash2,
+  ArrowLeft,
+  AlertCircle,
+  CheckCircle,
+  Clock,
+  AlertTriangle,
+} from "lucide-react";
+import { LogStudySessionModal } from "@/components/sessions/LogStudySessionModal";
 import { cn } from "@/lib/utils";
-import type { IExamWithStats } from "@/types";
+import type { ITopic, IExamWithStats } from "@/types";
 
 interface ExamTimeStatsProps {
   exam: IExamWithStats;
@@ -124,5 +149,188 @@ export function ExamTimeStats({ exam }: ExamTimeStatsProps) {
         </div>
       </CardContent>
     </Card>
+  );
+}
+
+export default function ExamDetailsPage() {
+  const { examId } = useParams<{ examId: string }>();
+  const navigate = useNavigate();
+  const { deleteExam, isDeleting } = useExams();
+  const { data, isLoading, addTopic, isAdding } = useTopics(examId!);
+
+  // State for filtering
+  const [filter, setFilter] = useState("all");
+
+  // State to control the Log Session modal and track the selected topic
+  const [isLogSessionModalOpen, setLogSessionModalOpen] = useState(false);
+  const [selectedTopicForLog, setSelectedTopicForLog] = useState<ITopic | null>(
+    null
+  );
+
+  // This function is passed down to TopicCard to open the modal for a specific topic
+  const handleOpenLogTimeModal = (topic: ITopic) => {
+    setSelectedTopicForLog(topic);
+    setLogSessionModalOpen(true);
+  };
+
+  const handleDeleteExam = () => {
+    if (
+      window.confirm(
+        `Are you sure you want to delete "${data?.title}"? This will delete all associated topics and cannot be undone.`
+      )
+    ) {
+      deleteExam(examId!);
+    }
+  };
+
+  // Memoized list of filtered topics
+  const filteredTopics = useMemo(() => {
+    if (!data?.topics) return [];
+    if (filter === "all") {
+      return data.topics;
+    }
+    return data.topics.filter((topic) => topic.status === filter);
+  }, [data, filter]);
+
+  // Calculate days remaining until exam
+  const getDaysRemaining = () => {
+    if (!data?.examDate) return 0;
+    const examDate = new Date(data.examDate);
+    const today = new Date();
+    return differenceInCalendarDays(examDate, today);
+  };
+
+  // Main component render logic
+  if (isLoading) {
+    return (
+      <div className="mx-auto max-w-3xl space-y-8">
+        <Skeleton className="h-12 w-1/2 mx-auto" />
+        <Skeleton className="h-8 w-3/4 mx-auto" />
+        <Skeleton className="h-20 w-full" />
+        <Skeleton className="h-64 w-full" />
+      </div>
+    );
+  }
+
+  const daysRemaining = getDaysRemaining();
+  const isUrgent = daysRemaining <= 7;
+
+  return (
+    <div className="space-y-8">
+      {/* Page Header */}
+      <div className="flex items-center justify-between">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => navigate("/exams")}
+          className="mb-4"
+        >
+          <ArrowLeft className="mr-2 h-4 w-4" /> Back to Exams
+        </Button>
+
+        <Button
+          variant="destructive"
+          size="sm"
+          onClick={handleDeleteExam}
+          disabled={isDeleting}
+          className="mb-4"
+        >
+          <Trash2 className="mr-2 h-4 w-4" /> Delete Exam
+        </Button>
+      </div>
+
+      <div className="text-center">
+        <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl">
+          {data?.title || "Study Topics"}
+        </h1>
+        <p className="mt-4 text-lg text-muted-foreground">
+          Break down your exam into manageable topics below.
+        </p>
+      </div>
+
+      {/* Urgent Alert */}
+      {isUrgent && (
+        <div
+          className={cn(
+            "p-4 border rounded-lg flex items-center gap-3",
+            daysRemaining <= 3
+              ? "bg-red-50 border-red-200"
+              : "bg-amber-50 border-amber-200"
+          )}
+        >
+          <AlertCircle
+            className={cn(
+              "h-5 w-5",
+              daysRemaining <= 3 ? "text-red-500" : "text-amber-500"
+            )}
+          />
+          <div>
+            <h3 className="font-medium">Urgent: Exam Coming Soon</h3>
+            <p className="text-sm text-muted-foreground">
+              {daysRemaining <= 0
+                ? "Exam is today! Make sure to prioritize your remaining topics."
+                : `Only ${daysRemaining} day${
+                    daysRemaining === 1 ? "" : "s"
+                  } left until the exam! Make sure to prioritize your remaining topics.`}
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Add Topic Form */}
+      <AddTopicForm
+        onSubmit={(name, estimatedMinutes) =>
+          addTopic({ name, examID: examId!, estimatedMinutes })
+        }
+        isAdding={isAdding}
+      />
+
+      {/* Topic List Management Card */}
+      <Card className="shadow-lg">
+        <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <CardTitle>Topic Management</CardTitle>
+            <CardDescription>
+              Filter and browse through your topics for this exam.
+            </CardDescription>
+          </div>
+          {data && data.topics.length > 0 && (
+            <TopicFilters filter={filter} setFilter={setFilter} />
+          )}
+        </CardHeader>
+        <CardContent>
+          {data && data.topics.length > 0 ? (
+            <>
+              <TopicStats counts={data.counts} />
+              <TopicList
+                topics={filteredTopics}
+                onLogTimeClick={handleOpenLogTimeModal}
+              />
+            </>
+          ) : (
+            // Empty State
+            <div className="flex flex-col items-center justify-center text-center py-16">
+              <BookOpen className="w-12 h-12 text-muted-foreground mb-4" />
+              <h3 className="text-lg font-semibold">
+                Your study list is empty!
+              </h3>
+              <p className="text-muted-foreground mt-1">
+                Add your first topic above to get started.
+              </p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {selectedTopicForLog && (
+        <LogStudySessionModal
+          isOpen={isLogSessionModalOpen}
+          onOpenChange={setLogSessionModalOpen}
+          examId={examId!}
+          examTitle={data?.title || ""}
+          topic={selectedTopicForLog}
+        />
+      )}
+    </div>
   );
 }
