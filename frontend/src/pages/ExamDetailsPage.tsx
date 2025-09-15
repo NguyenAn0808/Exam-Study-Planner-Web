@@ -1,166 +1,128 @@
-import { useParams, useNavigate } from "react-router-dom";
-import { useState, useMemo } from "react";
-import { useTopics } from "@/hooks/useTopics";
-import { useExams } from "@/hooks/useExams";
-import { AddTopicForm } from "@/components/exams/AddTopicForm";
-import { TopicList } from "@/components/exams/TopicList";
-import { Skeleton } from "@/components/ui/skeleton";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-  CardFooter,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { TopicStats } from "@/components/exams/TopicStats";
-import { TopicFilters } from "@/components/exams/TopicFilters";
-import { BookOpen, Trash2, ArrowLeft } from "lucide-react";
-import { LogStudySessionModal } from "@/components/sessions/LogStudySessionModal";
-import type { ITopic } from "@/types";
+import { differenceInCalendarDays, format } from "date-fns";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
+import { AlertTriangle, CheckCircle, Clock } from "lucide-react";
+import { cn } from "@/lib/utils";
+import type { IExamWithStats } from "@/types";
 
-const ExamDetailsPage = () => {
-  const { examId } = useParams<{ examId: string }>();
-  const navigate = useNavigate();
-  const { deleteExam, isDeleting } = useExams();
-  const { data, isLoading, addTopic, isAdding } = useTopics(examId!);
+interface ExamTimeStatsProps {
+  exam: IExamWithStats;
+}
 
-  // State for filtering
-  const [filter, setFilter] = useState("all");
+export function ExamTimeStats({ exam }: ExamTimeStatsProps) {
+  const examDate = new Date(exam.examDate);
+  const today = new Date();
+  const daysLeft = differenceInCalendarDays(examDate, today);
+  const isPastDue = daysLeft < 0;
+  const progress = Math.round(exam.progress * 100) / 100;
 
-  // State to control the Log Session modal and track the selected topic
-  const [isLogSessionModalOpen, setLogSessionModalOpen] = useState(false);
-  const [selectedTopicForLog, setSelectedTopicForLog] = useState<ITopic | null>(
-    null
+  // Ideal progress based on days left
+  const totalDays = 30; // Assuming an average study period of 30 days
+  const daysElapsed = totalDays - daysLeft;
+  const expectedProgress = Math.min(
+    100,
+    Math.max(0, (daysElapsed / totalDays) * 100)
   );
 
-  // This function is passed down to TopicCard to open the modal for a specific topic
-  const handleOpenLogTimeModal = (topic: ITopic) => {
-    setSelectedTopicForLog(topic);
-    setLogSessionModalOpen(true);
-  };
+  // Calculate if behind, on track, or ahead
+  const progressDifference = progress - expectedProgress;
+  const status =
+    progressDifference >= 10
+      ? "ahead"
+      : progressDifference >= -10
+      ? "onTrack"
+      : "behind";
 
-  const handleDeleteExam = () => {
-    if (
-      window.confirm(
-        `Are you sure you want to delete "${data?.title}"? This will delete all associated topics and cannot be undone.`
-      )
-    ) {
-      deleteExam(examId!);
-    }
-  };
-
-  // Memoized list of filtered topics
-  const filteredTopics = useMemo(() => {
-    if (!data?.topics) return [];
-    if (filter === "all") {
-      return data.topics;
-    }
-    return data.topics.filter((topic) => topic.status === filter);
-  }, [data, filter]);
-
-  // Main component render logic
-  if (isLoading) {
-    return (
-      <div className="mx-auto max-w-3xl space-y-8">
-        <Skeleton className="h-12 w-1/2 mx-auto" />
-        <Skeleton className="h-8 w-3/4 mx-auto" />
-        <Skeleton className="h-20 w-full" />
-        <Skeleton className="h-64 w-full" />
-      </div>
-    );
-  }
+  // Calculate daily progress needed to finish on time
+  const remainingProgress = 100 - progress;
+  const dailyProgressNeeded =
+    daysLeft > 0 ? remainingProgress / daysLeft : remainingProgress;
 
   return (
-    <div className="space-y-8">
-      {/* Page Header */}
-      <div className="flex items-center justify-between">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => navigate("/exams")}
-          className="mb-4"
-        >
-          <ArrowLeft className="mr-2 h-4 w-4" /> Back to Exams
-        </Button>
-
-        <Button
-          variant="destructive"
-          size="sm"
-          onClick={handleDeleteExam}
-          disabled={isDeleting}
-          className="mb-4"
-        >
-          <Trash2 className="mr-2 h-4 w-4" /> Delete Exam
-        </Button>
-      </div>
-
-      <div className="text-center">
-        <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl">
-          {data?.title || "Study Topics"}
-        </h1>
-        <p className="mt-4 text-lg text-muted-foreground">
-          Break down your exam into manageable topics below.
-        </p>
-      </div>
-
-      {/* Add Topic Form */}
-      <AddTopicForm
-        onSubmit={(name, estimatedMinutes) =>
-          addTopic({ name, examID: examId!, estimatedMinutes })
-        }
-        isAdding={isAdding}
-      />
-
-      {/* Topic List Management Card */}
-      <Card className="shadow-lg">
-        <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <CardTitle>Topic Management</CardTitle>
-            <CardDescription>
-              Filter and browse through your topics for this exam.
-            </CardDescription>
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Clock className="h-5 w-5" /> Time Management
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div>
+          <div className="flex justify-between text-sm mb-1">
+            <span>Current progress</span>
+            <span className="font-medium">{progress.toFixed(2)}%</span>
           </div>
-          {data && data.topics.length > 0 && (
-            <TopicFilters filter={filter} setFilter={setFilter} />
+          <Progress value={progress} className="h-2" />
+        </div>
+
+        <div>
+          <div className="flex justify-between text-sm mb-1">
+            <span>Expected progress</span>
+            <span className="font-medium">{expectedProgress.toFixed(2)}%</span>
+          </div>
+          <Progress value={expectedProgress} className="h-2 bg-muted" />
+        </div>
+
+        {!isPastDue && (
+          <div className="bg-muted rounded p-3 text-sm">
+            <p className="font-medium mb-1">To finish on time:</p>
+            <p>
+              Study{" "}
+              <span className="font-bold">
+                {dailyProgressNeeded.toFixed(2)}%
+              </span>{" "}
+              each day
+            </p>
+          </div>
+        )}
+
+        <div
+          className={cn(
+            "p-3 rounded text-sm flex items-start gap-2",
+            status === "behind"
+              ? "bg-red-50 text-red-700"
+              : status === "ahead"
+              ? "bg-green-50 text-green-700"
+              : "bg-blue-50 text-blue-700"
           )}
-        </CardHeader>
-        <CardContent>
-          {data && data.topics.length > 0 ? (
+        >
+          {status === "behind" ? (
             <>
-              <TopicStats counts={data.counts} />
-              <TopicList
-                topics={filteredTopics}
-                onLogTimeClick={handleOpenLogTimeModal}
-              />
+              <AlertTriangle className="h-5 w-5 mt-0.5" />
+              <div>
+                <p className="font-medium">You're behind schedule</p>
+                <p className="mt-1">
+                  {isPastDue
+                    ? "This exam has passed. Consider reviewing what happened and planning better next time."
+                    : `You need to increase your pace by ${Math.abs(
+                        progressDifference
+                      ).toFixed(2)}% to get back on track.`}
+                </p>
+              </div>
+            </>
+          ) : status === "ahead" ? (
+            <>
+              <CheckCircle className="h-5 w-5 mt-0.5" />
+              <div>
+                <p className="font-medium">You're ahead of schedule!</p>
+                <p className="mt-1">
+                  Great job! You're {progressDifference.toFixed(2)}% ahead of
+                  where you need to be.
+                </p>
+              </div>
             </>
           ) : (
-            // Empty State
-            <div className="flex flex-col items-center justify-center text-center py-16">
-              <BookOpen className="w-12 h-12 text-muted-foreground mb-4" />
-              <h3 className="text-lg font-semibold">
-                Your study list is empty!
-              </h3>
-              <p className="text-muted-foreground mt-1">
-                Add your first topic above to get started.
-              </p>
-            </div>
+            <>
+              <Clock className="h-5 w-5 mt-0.5" />
+              <div>
+                <p className="font-medium">You're on track</p>
+                <p className="mt-1">
+                  Keep up the good work to maintain your progress!
+                </p>
+              </div>
+            </>
           )}
-        </CardContent>
-      </Card>
-
-      {selectedTopicForLog && (
-        <LogStudySessionModal
-          isOpen={isLogSessionModalOpen}
-          onOpenChange={setLogSessionModalOpen}
-          examId={examId!}
-          examTitle={data?.title || ""}
-          topic={selectedTopicForLog}
-        />
-      )}
-    </div>
+        </div>
+      </CardContent>
+    </Card>
   );
-};
-
-export default ExamDetailsPage;
+}

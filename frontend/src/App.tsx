@@ -1,6 +1,6 @@
 import { Toaster } from "sonner";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { DashboardLayout } from "./layouts/DashBoardLayout"; // Giả sử DashboardLayout ở layouts
+import { DashboardLayout } from "./layouts/DashBoardLayout";
 import DashBoard from "./pages/DashBoard";
 import ExamsPage from "./pages/ExamsPage";
 import ExamDetailsPage from "./pages/ExamDetailsPage";
@@ -8,6 +8,7 @@ import TopicsPage from "./pages/TopicsPage";
 import ActivityPage from "./pages/ActivityPage";
 import ProgressPage from "./pages/ProgressPage";
 import SchedulePage from "./pages/SchedulePage";
+import TimeManagementPage from "./pages/TimeManagementPage";
 import NotFound from "./pages/NotFound";
 import { ModalProvider } from "./contexts/ModalContext";
 import { AIProvider } from "./contexts/AIContext";
@@ -28,6 +29,7 @@ function App() {
                 <Route path="activity" element={<ActivityPage />} />
                 <Route path="progress" element={<ProgressPage />} />
                 <Route path="schedule" element={<SchedulePage />} />
+                <Route path="time" element={<TimeManagementPage />} />
               </Route>
               <Route path="*" element={<NotFound />} />
             </Routes>

@@ -1,4 +1,3 @@
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { TopicCard } from "@/components/exams/TopicCard";
 import type { ITopic } from "@/types";
 import { useVirtualizer } from "@tanstack/react-virtual";

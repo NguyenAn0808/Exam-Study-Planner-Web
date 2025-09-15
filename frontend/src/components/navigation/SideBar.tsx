@@ -12,6 +12,7 @@ import {
   Calendar,
   Activity,
   TrendingUp,
+  Timer,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -83,6 +84,13 @@ export const Sidebar = ({
       icon: TrendingUp,
       badge: stats.overallProgress ? `${stats.overallProgress}%` : null,
       active: pathname === "/progress",
+    },
+    {
+      title: "Time Management",
+      href: "/time",
+      icon: Clock,
+      badge: null,
+      active: pathname === "/time",
     },
   ];
 
