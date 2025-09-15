@@ -19,12 +19,23 @@ export const createNewTopic = async (req, res) => {
 
     if (!exam) {
       return res.status(404).json({ message: "Exam not found" });
-    } else {
-      const topic = new Topic({ name, exam: examID, estimatedMinutes });
-      const newTopic = await topic.save();
-
-      res.status(201).json(newTopic);
     }
+
+    const existingTopic = await Topic.findOne({
+      name: name,
+      exam: examID,
+    });
+
+    if (existingTopic) {
+      return res.status(400).json({
+        message: "A topic with this name already exists in this exam.",
+      });
+    }
+
+    const topic = new Topic({ name, exam: examID, estimatedMinutes });
+    const newTopic = await topic.save();
+
+    res.status(201).json(newTopic);
   } catch (error) {
     console.error("Error creating topic:", error);
     res.status(500).json({ message: "Server Error" });

@@ -79,7 +79,14 @@ export const useTopics = (examID: string) => {
       });
       queryClient.invalidateQueries({ queryKey: ["exams"] });
     },
-    onError: (err) => toast.error("Failed to add topic: " + err.message),
+    onError: (error) => {
+    // Check if it's a duplicate name error
+    if (error.response?.status === 400) {
+      toast.error(error.response.data.message || "Failed to add topic");
+    } else {
+      toast.error("Failed to add topic: " + error.message);
+    }
+  }
   });
 
   const { mutate: updateTopic, isPending: isUpdating } = useMutation({
