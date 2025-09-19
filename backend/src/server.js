@@ -16,7 +16,7 @@ const PORT = process.env.PORT || 5001;
 
 // Middleware
 app.use(express.json());
-app.use(cors({ origin: ["http://localhost:5173"] })); // Enable CORS for front end
+app.use(cors()); // Enable CORS for front end
 
 // API Routes
 app.use("/api/exams", examRoutes);

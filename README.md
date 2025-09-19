@@ -34,7 +34,7 @@ npm run dev
 
 ## 🔗 Deployed Web URL or APK file
 
-(https://exam-study-planner-9btnw3ym9-nguyenans-projects-b4eb9ab0.vercel.app/)
+(https://exam-study-planner.vercel.app/)
 
 ## 🎥 Demo Video
 
