@@ -11,12 +11,12 @@ export const createNewExam = async (req, res) => {
         .status(400)
         .json({ message: "Title and exam date are required" });
     }
-    const exam = new Exam({ 
-      title, 
-      examDate, 
-      studyStartDate, 
+    const exam = new Exam({
+      title,
+      examDate,
+      studyStartDate,
       endStudyDate,
-      isAIGenerated: false 
+      isAIGenerated: false,
     });
 
     const newExam = await exam.save();
