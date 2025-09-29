@@ -509,3 +509,69 @@ const generateMilestones = (daysAvailable) => {
 
   return milestones;
 };
+
+export const generateTopics = async (req, res) => {
+  const { subject, description, totalTopics } = req.body;
+
+  if (!subject || !totalTopics) {
+    return res.status(400).json({ message: "Subject and totalTopics are required." });
+  }
+
+  try {
+    const systemPrompt = `You are an expert curriculum designer specializing in creating detailed study topics. 
+Generate specific, meaningful topics that would help a student master the material systematically.
+
+Output format must be a JSON array:
+[{
+  "name": "Specific Topic Name (e.g., 'Linear Regression Implementation', not 'Part 1')",
+  "description": "Detailed description of what this topic covers and why it's important",
+  "priority": "high|medium|low"
+}]
+
+IMPORTANT: Never use generic names like "Part 1" or "Introduction". Each topic name must be self-descriptive and specific to the content being studied.`;
+
+    const userPrompt = `Create ${totalTopics} detailed study topics for "${subject}"${
+      description ? ` focusing on: ${description}` : ""
+    }.
+    
+Requirements:
+- Each topic must be a specific concept or skill to master
+- Topics should follow a logical learning progression
+- For Machine Learning topics, emphasize practical implementations and algorithms
+- Include both theoretical understanding and practical applications
+- Ensure topics build upon each other`;
+
+    const completion = await openai.chat.completions.create({
+      model: "gpt-3.5-turbo",
+      messages: [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: userPrompt },
+      ],
+      temperature: 0.7,
+      max_tokens: 1000,
+      response_format: { type: "json_object" }
+    });
+
+    const response = completion.choices[0]?.message?.content;
+    if (!response) {
+      throw new Error("No response from OpenAI");
+    }
+
+    // Parse the JSON response
+    const parsedResponse = JSON.parse(response);
+    const topics = parsedResponse.topics || parsedResponse;
+
+    res.status(200).json({ topics: Array.isArray(topics) ? topics : [topics] });
+  } catch (error) {
+    console.error("Error generating topics with OpenAI:", error);
+    
+    // Return fallback topics on error
+    const fallbackTopics = Array.from({ length: totalTopics }, (_, i) => ({
+      name: `${subject} - Topic ${i + 1}`,
+      description: `Study topic ${i + 1} for ${subject}`,
+      priority: "medium",
+    }));
+    
+    res.status(200).json({ topics: fallbackTopics });
+  }
+};
