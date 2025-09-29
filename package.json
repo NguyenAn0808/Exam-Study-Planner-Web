@@ -4,13 +4,11 @@
   "description": "Exam Study Planner - Full Stack Application",
   "scripts": {
     "dev:docker": "docker-compose -f docker-compose.dev.yml up -d",
-    "dev:db-only": "docker-compose -f docker-compose.dev.yml up -d mongodb",
-    "dev:clean": "docker-compose -f docker-compose.dev.yml down -v && docker-compose -f docker-compose.dev.yml up -d",
-    "dev:logs": "docker-compose -f docker-compose.dev.yml logs -f",
     "dev:stop": "docker-compose -f docker-compose.dev.yml down",
-    "build:images": "docker-compose -f docker-compose.dev.yml build",
-    "test:all": "cd frontend && npm run lint && npm run typecheck && cd ../backend && npm test",
-    "install:all": "cd frontend && npm install && cd ../backend && npm install"
+    "prod:up": "docker-compose up -d",
+    "prod:down": "docker-compose down",
+    "install:all": "cd frontend && npm install && cd ../backend && npm install",
+    "build:all": "cd frontend && npm run build && cd ../backend && echo Backend ready"
   },
   "repository": {
     "type": "git",

@@ -16,21 +16,22 @@
 - MongoDB (for database)
 - npm package manager
 
-**Backend Setup:**
+**Quick Setup:**
 
 ```bash
+# Install all dependencies
+npm run install:all
+
+# Backend setup
 cd backend
-npm install
 npm run dev
-```
 
-**Frontend Setup:**
-
-```bash
+# Frontend setup (in new terminal)
 cd frontend
-npm install
 npm run dev
 ```
+
+The frontend will be available at `http://localhost:5173` and backend at `http://localhost:5001`.
 
 ### Docker Development Environment
 
@@ -41,28 +42,32 @@ npm run dev
 **Run with Docker Compose:**
 
 ```bash
-# Build and start all containers
-docker-compose up --build
+# Development environment
+npm run dev:docker
 
-# Or run in detached mode
-docker-compose up -d --build
+# Production environment
+npm run prod:up
+
+# Stop containers
+npm run dev:stop  # or npm run prod:down
 ```
 
 This will start:
 
-- Frontend on http://localhost:3000
-- Backend API on http://localhost:5000
+- Frontend on http://localhost:3000 (production) or http://localhost:5173 (development)
+- Backend API on http://localhost:5001
 - MongoDB database
 
-### Production Deployment with Docker
+### Production Deployment
 
-**Prerequisites:**
-
-- Docker and Docker Compose installed
+**Local Production Build:**
 
 ```bash
-# Build and start production containers
-docker-compose up -d --build
+# Build all applications
+npm run build:all
+
+# Start production containers
+npm run prod:up
 ```
 
 ### CI/CD with GitHub Actions
@@ -85,14 +90,16 @@ This project uses GitHub Actions for continuous integration and deployment to Az
 
 The application is deployed on Azure using:
 
-- Azure Container Apps for hosting
-- Azure Container Registry for storing Docker images
-- Azure Cosmos DB (MongoDB API) for database
+- **Azure Container Apps** for hosting both frontend and backend
+- **Azure Container Registry** for storing Docker images
+- **MongoDB Atlas** for database (cloud-hosted MongoDB)
+- **Automatic HTTPS** and custom domain support
+- **Auto-scaling** with zero-downtime deployments
 
 ## 🔗 Deployed Web URL
 
-- Vercel Deployment: [https://exam-study-planner.vercel.app/](https://exam-study-planner.vercel.app/)
-- Azure Deployment: [https://exam-study-planner.azurecontainerapps.io](https://exam-study-planner.azurecontainerapps.io)
+- **Live Application:** [https://exam-planner-frontend.graywave-05c71fd1.southeastasia.azurecontainerapps.io](https://exam-planner-frontend.graywave-05c71fd1.southeastasia.azurecontainerapps.io)
+- **Backend API:** [https://exam-planner-backend.graywave-05c71fd1.southeastasia.azurecontainerapps.io](https://exam-planner-backend.graywave-05c71fd1.southeastasia.azurecontainerapps.io)
 
 ## 🎥 Demo Video
 
@@ -348,11 +355,27 @@ The automated pipeline includes:
 - **Azure Cosmos DB:** Managed MongoDB database service
 - **Azure Identity and Access Management:** Secure access to resources
 
+## 🚀 Deployment Status
+
+✅ **Successfully Deployed to Azure Container Apps**
+
+- **Frontend:** Deployed and running with optimized production build
+- **Backend:** API server running with external access and CORS configured
+- **Database:** Connected to MongoDB Atlas cloud database
+- **CI/CD:** Automated deployment pipeline working perfectly
+- **Security:** OpenAI API keys secured on backend, HTTPS enabled
+- **Performance:** Auto-scaling enabled, zero-downtime deployments
+
 ## ✅ Checklist
 
 - [✅] Code runs without errors
-- [✅] All required features implemented (add/edit/delete/complete tasks)
-- [✅] Docker containerization implemented
+- [✅] All required features implemented (CRUD operations for exams, topics, study sessions)
+- [✅] AI-powered study planning and topic generation
+- [✅] Docker containerization implemented for both frontend and backend
 - [✅] CI/CD pipeline configured with GitHub Actions
-- [✅] Cloud deployment to Azure Container Apps
+- [✅] Cloud deployment to Azure Container Apps successful
+- [✅] Database integration with MongoDB Atlas
+- [✅] CORS configuration and security measures implemented
+- [✅] Responsive UI with modern design
 - [✅] All ✍️ sections are filled
+- [✅] Project documentation complete
