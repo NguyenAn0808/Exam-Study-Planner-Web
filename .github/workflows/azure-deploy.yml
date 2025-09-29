@@ -81,10 +81,10 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
           
-      - name: Log in to Azure Container Registry
+      - name: Log in to Azure Container Registry with Azure CLI
         run: |
           echo "Logging in to ACR: ${{ secrets.ACR_LOGIN_SERVER }}"
-          echo "${{ secrets.ACR_PASSWORD }}" | docker login ${{ secrets.ACR_LOGIN_SERVER }} -u ${{ secrets.ACR_USERNAME }} --password-stdin
+          az acr login --name ${{ secrets.ACR_NAME }}
           echo "Login successful"
           
       - name: Verify Docker setup
