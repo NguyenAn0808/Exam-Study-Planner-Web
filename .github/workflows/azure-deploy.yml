@@ -81,13 +81,14 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
           
-      - name: Register required Azure providers
+      # Note: We need to skip provider registration as service principal does not have rights
+      # We're assuming the provider is already registered in the subscription manually
+      - name: Check Azure providers status
         run: |
-          echo "Registering Microsoft.App provider..."
-          az provider register --namespace Microsoft.App --wait
-          echo "Registering Microsoft.ContainerRegistry provider..."
-          az provider register --namespace Microsoft.ContainerRegistry --wait
-          echo "Provider registration complete"
+          echo "Checking Microsoft.App provider status..."
+          az provider show -n Microsoft.App --query "registrationState" -o tsv || echo "Provider may need manual registration"
+          echo "Checking Microsoft.ContainerRegistry provider status..."
+          az provider show -n Microsoft.ContainerRegistry --query "registrationState" -o tsv || echo "Provider may need manual registration"
           
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -124,14 +125,13 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max      # Deploy Backend to Azure Container App
       - name: Deploy Backend to Azure Container App
-        uses: azure/container-apps-deploy-action@v1
+        uses: azure/container-apps-deploy-action@v2
         with:
-          appSourcePath: ${{ github.workspace }}
-          acrName: ${{ secrets.ACR_NAME }}
           containerAppName: exam-planner-backend
           resourceGroup: ${{ secrets.AZURE_RESOURCE_GROUP }}
           imageToDeploy: ${{ secrets.ACR_NAME }}.azurecr.io/exam-planner-backend:latest
           targetPort: 5001
+          ingress: internal
           environmentVariables: |
             MONGODB_CONNECTION_STRING=${{ secrets.MONGODB_CONNECTION_STRING }}
             PORT=5001
@@ -140,10 +140,8 @@ jobs:
       
       # Deploy Frontend to Azure Container App
       - name: Deploy Frontend to Azure Container App
-        uses: azure/container-apps-deploy-action@v1
+        uses: azure/container-apps-deploy-action@v2
         with:
-          appSourcePath: ${{ github.workspace }}
-          acrName: ${{ secrets.ACR_NAME }}
           containerAppName: exam-planner-frontend
           resourceGroup: ${{ secrets.AZURE_RESOURCE_GROUP }}
           imageToDeploy: ${{ secrets.ACR_NAME }}.azurecr.io/exam-planner-frontend:latest
