@@ -60,7 +60,8 @@ jobs:
       - name: TypeScript check frontend
         run: |
           cd frontend
-          npm run typecheck || echo "TypeScript check completed with warnings"
+          echo "Running TypeScript check... (errors will be displayed but won't fail the build)"
+          npm run typecheck || echo "⚠️ TypeScript check found errors. See output above."
           
       - name: Install backend dependencies
         run: |
@@ -70,4 +71,5 @@ jobs:
       - name: Lint check
         run: |
           cd frontend
-          npm run lint -- --max-warnings=0 || echo "Lint completed with warnings"
+          echo "Running ESLint... (errors will be displayed but won't fail the build)"
+          npm run lint -- --max-warnings=0 || echo "⚠️ ESLint found errors. See output above."
