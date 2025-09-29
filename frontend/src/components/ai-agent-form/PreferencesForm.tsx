@@ -1,19 +1,24 @@
-import React, { useState } from 'react';
-import type { StudentPreferences } from '../../types/ai-agent/preferences';
-import StudyHabitsForm from './StudyHabitsForm';
-import ExamPreferencesForm from './ExamPreferencesForm';
-import AdaptiveSettingsForm from './AdaptiveSettingsForm';
-
+import React, { useState } from "react";
+import type {
+  StudentPreferences,
+  StudyHabits,
+  ExamPreferences,
+  LearningPreferences,
+} from "../../types/ai-agent/preferences";
+import StudyHabitsForm from "./StudyHabitsForm";
+import ExamPreferencesForm from "./ExamPreferencesForm";
+import LearningPreferencesForm from "./LearningPreferencesForm";
+import AdaptiveSettingsForm from "./AdaptiveSettingsForm";
 
 const defaultStudentPreferences: StudentPreferences = {
-    studyHabits: {
-    preferredStudyTime: 'morning',
+  studyHabits: {
+    preferredStudyTime: "morning",
     sessionDuration: 45,
     breakDuration: 15,
     energyLevels: {
-      morning: 'high',
-      afternoon: 'medium',
-      evening: 'medium',
+      morning: "high",
+      afternoon: "medium",
+      evening: "medium",
     },
     usePomodoroTechnique: false,
     pomodoroSettings: {
@@ -24,49 +29,58 @@ const defaultStudentPreferences: StudentPreferences = {
     },
   },
   examPreferences: {
-    difficultyLevel: 'intermediate',
-    targetGrade: 'A',
-    currentKnowledgeLevel: 'basic',
+    difficultyLevel: "intermediate",
+    targetGrade: "A",
+    currentKnowledgeLevel: "basic",
     timeAvailablePerDay: 2,
-    stressLevel: 'medium',
-    confidenceLevel: 'medium',
+    stressLevel: "medium",
+    confidenceLevel: "medium",
   },
   adaptiveSettings: {
     receiveReminders: true,
     adjustForProcrastination: true,
-    difficultyAdjustment: 'automatic',
+    difficultyAdjustment: "automatic",
     stressManagement: true,
   },
 };
 
+interface StepComponentProps {
+  values: StudyHabits | ExamPreferences | LearningPreferences;
+  onChange: (
+    values: StudyHabits | ExamPreferences | LearningPreferences
+  ) => void;
+}
+
 interface FormStep {
   title: string;
-  component: React.FC<any>;
+  component: React.FC<StepComponentProps>;
   description: string;
 }
 
 const PreferencesForm: React.FC<{
   onSubmit: (preferences: StudentPreferences) => void;
   className?: string;
-}> = ({ onSubmit, className = '' }) => {
+}> = ({ onSubmit, className = "" }) => {
   const [currentStep, setCurrentStep] = useState(0);
-  const [preferences, setPreferences] = useState<StudentPreferences>(defaultStudentPreferences);
+  const [preferences, setPreferences] = useState<StudentPreferences>(
+    defaultStudentPreferences
+  );
 
   const steps: FormStep[] = [
     {
-      title: 'Study Habits',
+      title: "Study Habits",
       component: StudyHabitsForm,
-      description: 'Configure your preferred study times and session durations',
+      description: "Configure your preferred study times and session durations",
     },
     {
-      title: 'Exam Preferences',
+      title: "Exam Preferences",
       component: ExamPreferencesForm,
-      description: 'Set your exam goals and current knowledge level',
+      description: "Set your exam goals and current knowledge level",
     },
     {
-      title: 'Adaptive Settings',
+      title: "Adaptive Settings",
       component: AdaptiveSettingsForm,
-      description: 'Configure how the AI agent adapts to your needs',
+      description: "Configure how the AI agent adapts to your needs",
     },
   ];
 
@@ -93,20 +107,21 @@ const PreferencesForm: React.FC<{
       case 0:
         return {
           values: preferences.studyHabits,
-          onChange: (studyHabits: StudentPreferences['studyHabits']) =>
+          onChange: (studyHabits: StudentPreferences["studyHabits"]) =>
             setPreferences({ ...preferences, studyHabits }),
         };
       case 1:
         return {
           values: preferences.examPreferences,
-          onChange: (examPreferences: StudentPreferences['examPreferences']) =>
+          onChange: (examPreferences: StudentPreferences["examPreferences"]) =>
             setPreferences({ ...preferences, examPreferences }),
         };
       case 2:
         return {
           values: preferences.adaptiveSettings,
-          onChange: (adaptiveSettings: StudentPreferences['adaptiveSettings']) =>
-            setPreferences({ ...preferences, adaptiveSettings }),
+          onChange: (
+            adaptiveSettings: StudentPreferences["adaptiveSettings"]
+          ) => setPreferences({ ...preferences, adaptiveSettings }),
         };
       default:
         return {};
@@ -125,7 +140,9 @@ const PreferencesForm: React.FC<{
               <button
                 onClick={() => handleStepClick(index)}
                 className={`flex flex-col items-center group ${
-                  index <= currentStep ? 'cursor-pointer' : 'cursor-not-allowed opacity-50'
+                  index <= currentStep
+                    ? "cursor-pointer"
+                    : "cursor-not-allowed opacity-50"
                 }`}
                 disabled={index > currentStep}
               >
@@ -133,15 +150,17 @@ const PreferencesForm: React.FC<{
                   className={`w-8 h-8 rounded-full flex items-center justify-center mb-2 transition-colors
                     ${
                       index < currentStep
-                        ? 'bg-green-500 text-white'
+                        ? "bg-green-500 text-white"
                         : index === currentStep
-                        ? 'bg-blue-500 text-white'
-                        : 'bg-gray-200 text-gray-500'
+                        ? "bg-blue-500 text-white"
+                        : "bg-gray-200 text-gray-500"
                     }`}
                 >
-                  {index < currentStep ? '✓' : index + 1}
+                  {index < currentStep ? "✓" : index + 1}
                 </div>
-                <span className="text-sm font-medium text-gray-700">{step.title}</span>
+                <span className="text-sm font-medium text-gray-700">
+                  {step.title}
+                </span>
                 <span className="text-xs text-gray-500 text-center mt-1 opacity-0 group-hover:opacity-100 transition-opacity">
                   {step.description}
                 </span>
@@ -149,7 +168,7 @@ const PreferencesForm: React.FC<{
               {index < steps.length - 1 && (
                 <div
                   className={`flex-1 h-0.5 mx-4 ${
-                    index < currentStep ? 'bg-green-500' : 'bg-gray-200'
+                    index < currentStep ? "bg-green-500" : "bg-gray-200"
                   }`}
                 />
               )}
@@ -171,8 +190,8 @@ const PreferencesForm: React.FC<{
           className={`px-4 py-2 rounded-md text-sm font-medium transition-colors
             ${
               currentStep === 0
-                ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
             }`}
         >
           Back
@@ -181,7 +200,7 @@ const PreferencesForm: React.FC<{
           onClick={handleNext}
           className="px-4 py-2 bg-blue-500 text-white rounded-md text-sm font-medium hover:bg-blue-600 transition-colors"
         >
-          {currentStep === steps.length - 1 ? 'Submit' : 'Next'}
+          {currentStep === steps.length - 1 ? "Submit" : "Next"}
         </button>
       </div>
     </div>

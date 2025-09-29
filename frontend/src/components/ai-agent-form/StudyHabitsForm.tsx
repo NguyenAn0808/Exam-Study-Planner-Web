@@ -7,7 +7,7 @@ interface StudyHabitsFormProps {
 }
 
 const StudyHabitsForm: React.FC<StudyHabitsFormProps> = ({ values, onChange }) => {
-  const handleChange = (field: keyof StudyHabits, value: any) => {
+  const handleChange = <T extends keyof StudyHabits>(field: T, value: StudyHabits[T]) => {
     onChange({
       ...values,
       [field]: value,
