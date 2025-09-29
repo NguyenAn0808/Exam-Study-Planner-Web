@@ -94,13 +94,17 @@ jobs:
       - name: Build and push backend Docker image
         run: |
           cd backend
-          docker build -t ${{ secrets.ACR_LOGIN_SERVER }}/exam-planner-backend:latest .
+          echo "Building backend Docker image..."
+          docker build . -t ${{ secrets.ACR_LOGIN_SERVER }}/exam-planner-backend:latest
+          echo "Pushing backend Docker image..."
           docker push ${{ secrets.ACR_LOGIN_SERVER }}/exam-planner-backend:latest
           
       - name: Build and push frontend Docker image
         run: |
           cd frontend
-          docker build -t ${{ secrets.ACR_LOGIN_SERVER }}/exam-planner-frontend:latest .
+          echo "Building frontend Docker image..."
+          docker build . -t ${{ secrets.ACR_LOGIN_SERVER }}/exam-planner-frontend:latest
+          echo "Pushing frontend Docker image..."
           docker push ${{ secrets.ACR_LOGIN_SERVER }}/exam-planner-frontend:latest      # Deploy Backend to Azure Container App
       - name: Deploy Backend to Azure Container App
         uses: azure/container-apps-deploy-action@v1
