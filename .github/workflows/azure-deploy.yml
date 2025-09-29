@@ -128,7 +128,8 @@ jobs:
         uses: azure/container-apps-deploy-action@v2
         with:
           containerAppName: exam-planner-backend
-          resourceGroup: ${{ secrets.AZURE_RESOURCE_GROUP }}
+          resourceGroup: exam-planner-rg
+          containerAppEnvironment: exam-planner-env
           imageToDeploy: ${{ secrets.ACR_NAME }}.azurecr.io/exam-planner-backend:latest
           targetPort: 5001
           ingress: internal
@@ -143,7 +144,8 @@ jobs:
         uses: azure/container-apps-deploy-action@v2
         with:
           containerAppName: exam-planner-frontend
-          resourceGroup: ${{ secrets.AZURE_RESOURCE_GROUP }}
+          resourceGroup: exam-planner-rg
+          containerAppEnvironment: exam-planner-env
           imageToDeploy: ${{ secrets.ACR_NAME }}.azurecr.io/exam-planner-frontend:latest
           targetPort: 80
           ingress: external
@@ -153,5 +155,7 @@ jobs:
         run: |
           echo "🎉 Deployment completed successfully!"
           echo ""
-          echo "📱 Frontend URL: https://exam-planner-frontend.$(az containerapp env show -g ${{ secrets.AZURE_RESOURCE_GROUP }} -n exam-planner-frontend-env --query 'properties.defaultDomain' -o tsv)"
-          echo "🔧 Backend URL: https://exam-planner-backend.$(az containerapp env show -g ${{ secrets.AZURE_RESOURCE_GROUP }} -n exam-planner-backend-env --query 'properties.defaultDomain' -o tsv)"
+          echo "📱 Frontend URL: https://exam-planner-frontend.graywave-05c71fd1.southeastasia.azurecontainerapps.io"
+          echo "🔧 Backend URL: https://exam-planner-backend.graywave-05c71fd1.southeastasia.azurecontainerapps.io"
+          echo ""
+          echo "🌐 Main Application: https://exam-planner-frontend.graywave-05c71fd1.southeastasia.azurecontainerapps.io"
