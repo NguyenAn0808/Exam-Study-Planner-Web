@@ -123,32 +123,44 @@ jobs:
           push: true
           tags: ${{ secrets.ACR_NAME }}.azurecr.io/exam-planner-frontend:latest
           cache-from: type=gha
-          cache-to: type=gha,mode=max      # Deploy Backend to Azure Container App
+          cache-to: type=gha,mode=max      # Deploy Backend to Azure Container App using Azure CLI
       - name: Deploy Backend to Azure Container App
-        uses: azure/container-apps-deploy-action@v2
-        with:
-          containerAppName: exam-planner-backend
-          resourceGroup: exam-planner-rg
-          containerAppEnvironment: exam-planner-env
-          imageToDeploy: ${{ secrets.ACR_NAME }}.azurecr.io/exam-planner-backend:latest
-          targetPort: 5001
-          ingress: internal
-          environmentVariables: |
-            MONGODB_CONNECTION_STRING=${{ secrets.MONGODB_CONNECTION_STRING }}
-            PORT=5001
-            OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}
-            NODE_ENV=production
+        run: |
+          echo "Creating backend container app..."
+          az containerapp create \
+            --name exam-planner-backend \
+            --resource-group exam-planner-rg \
+            --environment exam-planner-env \
+            --image ${{ secrets.ACR_NAME }}.azurecr.io/exam-planner-backend:latest \
+            --target-port 5001 \
+            --ingress internal \
+            --registry-server ${{ secrets.ACR_NAME }}.azurecr.io \
+            --env-vars \
+              MONGODB_CONNECTION_STRING="${{ secrets.MONGODB_CONNECTION_STRING }}" \
+              PORT=5001 \
+              OPENAI_API_KEY="${{ secrets.OPENAI_API_KEY }}" \
+              NODE_ENV=production \
+            --cpu 0.25 \
+            --memory 0.5Gi \
+            --min-replicas 0 \
+            --max-replicas 1
       
-      # Deploy Frontend to Azure Container App
+      # Deploy Frontend to Azure Container App using Azure CLI
       - name: Deploy Frontend to Azure Container App
-        uses: azure/container-apps-deploy-action@v2
-        with:
-          containerAppName: exam-planner-frontend
-          resourceGroup: exam-planner-rg
-          containerAppEnvironment: exam-planner-env
-          imageToDeploy: ${{ secrets.ACR_NAME }}.azurecr.io/exam-planner-frontend:latest
-          targetPort: 80
-          ingress: external
+        run: |
+          echo "Creating frontend container app..."
+          az containerapp create \
+            --name exam-planner-frontend \
+            --resource-group exam-planner-rg \
+            --environment exam-planner-env \
+            --image ${{ secrets.ACR_NAME }}.azurecr.io/exam-planner-frontend:latest \
+            --target-port 80 \
+            --ingress external \
+            --registry-server ${{ secrets.ACR_NAME }}.azurecr.io \
+            --cpu 0.25 \
+            --memory 0.5Gi \
+            --min-replicas 0 \
+            --max-replicas 1
           
       # Display deployment URLs
       - name: Display Deployment URLs
