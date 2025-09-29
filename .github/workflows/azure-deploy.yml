@@ -123,18 +123,35 @@ jobs:
           push: true
           tags: ${{ secrets.ACR_NAME }}.azurecr.io/exam-planner-frontend:latest
           cache-from: type=gha
-          cache-to: type=gha,mode=max      # Note: Container Apps deployment is temporarily disabled due to Microsoft.App provider registration requirements
-      # Please follow AZURE_SETUP_REQUIREMENTS.md to complete the Azure setup first
+          cache-to: type=gha,mode=max      # Deploy Backend to Azure Container App
+      - name: Deploy Backend to Azure Container App
+        uses: azure/container-apps-deploy-action@v2
+        with:
+          containerAppName: exam-planner-backend
+          resourceGroup: ${{ secrets.AZURE_RESOURCE_GROUP }}
+          imageToDeploy: ${{ secrets.ACR_NAME }}.azurecr.io/exam-planner-backend:latest
+          targetPort: 5001
+          ingress: internal
+          environmentVariables: |
+            MONGODB_CONNECTION_STRING=${{ secrets.MONGODB_CONNECTION_STRING }}
+            PORT=5001
+            OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}
+            NODE_ENV=production
       
-      - name: Deployment Status
+      # Deploy Frontend to Azure Container App
+      - name: Deploy Frontend to Azure Container App
+        uses: azure/container-apps-deploy-action@v2
+        with:
+          containerAppName: exam-planner-frontend
+          resourceGroup: ${{ secrets.AZURE_RESOURCE_GROUP }}
+          imageToDeploy: ${{ secrets.ACR_NAME }}.azurecr.io/exam-planner-frontend:latest
+          targetPort: 80
+          ingress: external
+          
+      # Display deployment URLs
+      - name: Display Deployment URLs
         run: |
-          echo "✅ Images built and pushed successfully to ACR:"
-          echo "   - ${{ secrets.ACR_NAME }}.azurecr.io/exam-planner-backend:latest"
-          echo "   - ${{ secrets.ACR_NAME }}.azurecr.io/exam-planner-frontend:latest"
+          echo "🎉 Deployment completed successfully!"
           echo ""
-          echo "⚠️  Container Apps deployment is disabled. Please complete Azure setup:"
-          echo "   1. Register Microsoft.App provider in your Azure subscription"
-          echo "   2. Create Container Apps Environment"
-          echo "   3. See AZURE_SETUP_REQUIREMENTS.md for detailed instructions"
-          echo ""
-          echo "🔄 Once setup is complete, re-enable deployment in this workflow"
+          echo "📱 Frontend URL: https://exam-planner-frontend.$(az containerapp env show -g ${{ secrets.AZURE_RESOURCE_GROUP }} -n exam-planner-frontend-env --query 'properties.defaultDomain' -o tsv)"
+          echo "🔧 Backend URL: https://exam-planner-backend.$(az containerapp env show -g ${{ secrets.AZURE_RESOURCE_GROUP }} -n exam-planner-backend-env --query 'properties.defaultDomain' -o tsv)"
