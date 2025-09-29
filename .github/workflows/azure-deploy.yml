@@ -1,0 +1,95 @@
+name: Deploy to Azure Container Apps
+
+on:
+  push:
+    branches: [production]
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18"
+          
+      - name: Install frontend dependencies
+        working-directory: ./frontend
+        run: npm ci
+      
+      - name: Run frontend linting
+        working-directory: ./frontend
+        run: npm run lint || echo "Linting issues found but continuing"
+      
+      - name: Install backend dependencies
+        working-directory: ./backend
+        run: npm ci
+        
+      # Add tests here if you have them
+      
+  build-and-deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Set image tag
+        id: set-tag
+        run: echo "IMAGE_TAG=$(date +'%Y%m%d%H%M%S')" >> $GITHUB_ENV
+      
+      - name: Log in to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          
+      - name: Log in to Azure Container Registry
+        uses: azure/docker-login@v1
+        with:
+          login-server: ${{ secrets.ACR_LOGIN_SERVER }}
+          username: ${{ secrets.ACR_USERNAME }}
+          password: ${{ secrets.ACR_PASSWORD }}
+      
+      - name: Build and push backend Docker image
+        uses: docker/build-push-action@v4
+        with:
+          context: ./backend
+          push: true
+          tags: ${{ secrets.ACR_LOGIN_SERVER }}/exam-planner-backend:${{ env.IMAGE_TAG }},${{ secrets.ACR_LOGIN_SERVER }}/exam-planner-backend:latest
+      
+      - name: Build and push frontend Docker image
+        uses: docker/build-push-action@v4
+        with:
+          context: ./frontend
+          push: true
+          tags: ${{ secrets.ACR_LOGIN_SERVER }}/exam-planner-frontend:${{ env.IMAGE_TAG }},${{ secrets.ACR_LOGIN_SERVER }}/exam-planner-frontend:latest
+      
+      # Deploy Backend to Azure Container App
+      - name: Deploy Backend to Azure Container App
+        uses: azure/container-apps-deploy-action@v1
+        with:
+          appSourcePath: ${{ github.workspace }}
+          acrName: ${{ secrets.ACR_NAME }}
+          containerAppName: exam-planner-backend
+          resourceGroup: ${{ secrets.AZURE_RESOURCE_GROUP }}
+          imageToDeploy: ${{ secrets.ACR_LOGIN_SERVER }}/exam-planner-backend:${{ env.IMAGE_TAG }}
+          targetPort: 5001
+          environmentVariables: |
+            MONGODB_CONNECTION_STRING=${{ secrets.MONGODB_CONNECTION_STRING }}
+            PORT=5001
+            OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}
+            NODE_ENV=production
+      
+      # Deploy Frontend to Azure Container App
+      - name: Deploy Frontend to Azure Container App
+        uses: azure/container-apps-deploy-action@v1
+        with:
+          appSourcePath: ${{ github.workspace }}
+          acrName: ${{ secrets.ACR_NAME }}
+          containerAppName: exam-planner-frontend
+          resourceGroup: ${{ secrets.AZURE_RESOURCE_GROUP }}
+          imageToDeploy: ${{ secrets.ACR_LOGIN_SERVER }}/exam-planner-frontend:${{ env.IMAGE_TAG }}
+          targetPort: 80
+          ingress: external

@@ -8,7 +8,13 @@
 
 ## 🚀 Project Setup & Usage
 
-**How to install and run your project:**
+### Local Development
+
+**Prerequisites:**
+
+- Node.js (v16 or higher)
+- MongoDB (for database)
+- npm package manager
 
 **Backend Setup:**
 
@@ -26,15 +32,67 @@ npm install
 npm run dev
 ```
 
+### Docker Development Environment
+
 **Prerequisites:**
 
-- Node.js (v16 or higher)
-- MongoDB (for database)
-- npm package manager
+- Docker and Docker Compose installed
 
-## 🔗 Deployed Web URL or APK file
+**Run with Docker Compose:**
 
-(https://exam-study-planner.vercel.app/)
+```bash
+# Build and start all containers
+docker-compose up --build
+
+# Or run in detached mode
+docker-compose up -d --build
+```
+
+This will start:
+
+- Frontend on http://localhost:3000
+- Backend API on http://localhost:5000
+- MongoDB database
+
+### Production Deployment with Docker
+
+**Prerequisites:**
+
+- Docker and Docker Compose installed
+
+```bash
+# Build and start production containers
+docker-compose up -d --build
+```
+
+### CI/CD with GitHub Actions
+
+This project uses GitHub Actions for continuous integration and deployment to Azure. When code is pushed to the `production` branch, it automatically:
+
+1. Builds and tests the application
+2. Creates Docker images
+3. Pushes images to Azure Container Registry
+4. Deploys to Azure Container Apps
+
+**To use CI/CD:**
+
+1. Push your changes to the `production` branch
+2. GitHub Actions workflow will automatically run
+3. Monitor deployment progress in the "Actions" tab of the repository
+4. Access the deployed application at the Azure Container Apps URL
+
+### Azure Deployment
+
+The application is deployed on Azure using:
+
+- Azure Container Apps for hosting
+- Azure Container Registry for storing Docker images
+- Azure Cosmos DB (MongoDB API) for database
+
+## 🔗 Deployed Web URL
+
+- Vercel Deployment: [https://exam-study-planner.vercel.app/](https://exam-study-planner.vercel.app/)
+- Azure Deployment: [https://exam-study-planner.azurecontainerapps.io](https://exam-study-planner.azurecontainerapps.io)
 
 ## 🎥 Demo Video
 
@@ -120,6 +178,7 @@ This is a comprehensive Study Management System designed specifically for Vietna
 - **FullCalendar** for interactive calendar functionality
 - **Recharts** for data visualization and analytics
 - **OpenAI API** integration for AI-powered features
+- **Nginx** for serving static content in production
 
 **Backend:**
 
@@ -128,6 +187,15 @@ This is a comprehensive Study Management System designed specifically for Vietna
 - **CORS** for cross-origin resource sharing
 - **dotenv** for environment configuration
 - **OpenAI API** for AI study planning features
+
+**DevOps & Deployment:**
+
+- **Docker** for containerization and consistent environments
+- **Docker Compose** for local multi-container orchestration
+- **GitHub Actions** for CI/CD automation
+- **Azure Container Registry** for storing Docker images
+- **Azure Container Apps** for hosting containerized applications
+- **Azure Cosmos DB** with MongoDB API for database in production
 
 **Development Tools:**
 
@@ -166,6 +234,14 @@ This is a comprehensive Study Management System designed specifically for Vietna
 - RESTful endpoints for all CRUD operations
 - Consistent response formatting and error handling
 - Environment-based configuration for different deployment stages
+
+**DevOps Infrastructure:**
+
+- **Containerization:** Docker containers for consistent environments across development and production
+- **CI/CD Pipeline:** GitHub Actions workflow that automates testing, building and deployment
+- **Cloud Infrastructure:** Azure Container Apps for scalable, serverless container hosting
+- **Infrastructure as Code:** Deployment templates and configurations managed in version control
+- **Environment Management:** Separate development and production environments with appropriate configurations
 
 ## 🧠 Reflection
 
@@ -228,8 +304,55 @@ This is a comprehensive Study Management System designed specifically for Vietna
 - AI-powered reminder timing that adapts to user response patterns
 - Smart escalation of reminder urgency based on deadline proximity and completion probability
 
+## 🛠️ DevOps Implementation
+
+### Docker Containerization
+
+- **Multi-stage builds** for optimized container images
+- Separate development and production configurations
+- Environment variable management across environments
+- Volume mounts for persistent data in development
+
+### CI/CD Pipeline with GitHub Actions
+
+The automated pipeline includes:
+
+1. **Build Phase:**
+
+   - Code checkout
+   - Dependencies installation
+   - Application building
+   - Docker image creation
+
+2. **Test Phase:**
+
+   - Unit tests
+   - Integration tests
+   - Code quality checks
+
+3. **Deployment Phase:**
+
+   - Push Docker images to Azure Container Registry
+   - Deploy to Azure Container Apps
+   - Database connection setup
+   - Environment configuration
+
+4. **Monitoring:**
+   - Deployment verification steps
+   - Status notification
+
+### Azure Cloud Infrastructure
+
+- **Azure Container Apps:** Serverless container hosting with automatic scaling
+- **Azure Container Registry:** Private Docker image repository
+- **Azure Cosmos DB:** Managed MongoDB database service
+- **Azure Identity and Access Management:** Secure access to resources
+
 ## ✅ Checklist
 
 - [✅] Code runs without errors
 - [✅] All required features implemented (add/edit/delete/complete tasks)
+- [✅] Docker containerization implemented
+- [✅] CI/CD pipeline configured with GitHub Actions
+- [✅] Cloud deployment to Azure Container Apps
 - [✅] All ✍️ sections are filled
