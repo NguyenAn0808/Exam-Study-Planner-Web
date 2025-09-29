@@ -54,8 +54,8 @@ const LearningPreferencesForm: React.FC<LearningPreferencesFormProps> = ({ value
               <div key={value} className="flex items-center">
                 <input
                   type="checkbox"
-                  checked={values.styles.includes(value as any)}
-                  onChange={() => handleStyleToggle(value as any)}
+                  checked={values.styles.includes(value as 'visual' | 'auditory' | 'kinesthetic' | 'reading_writing')}
+                  onChange={() => handleStyleToggle(value as 'visual' | 'auditory' | 'kinesthetic' | 'reading_writing')}
                   className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
                 />
                 <label className="ml-2 block text-sm text-gray-700">
@@ -147,8 +147,8 @@ const LearningPreferencesForm: React.FC<LearningPreferencesFormProps> = ({ value
               <div key={value} className="flex items-center">
                 <input
                   type="checkbox"
-                  checked={values.practiceMethods.includes(value as any)}
-                  onChange={() => handlePracticeMethodToggle(value as any)}
+                  checked={values.practiceMethods.includes(value as 'practice_tests' | 'flashcards' | 'summarization' | 'teaching_others')}
+                  onChange={() => handlePracticeMethodToggle(value as 'practice_tests' | 'flashcards' | 'summarization' | 'teaching_others')}
                   className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
                 />
                 <label className="ml-2 block text-sm text-gray-700">
