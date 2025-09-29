@@ -1,0 +1,59 @@
+version: '3.8'
+
+services:
+  # MongoDB for development
+  mongodb:
+    image: mongo:latest
+    container_name: exam-planner-mongo-dev
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_dev_data:/data/db
+    environment:
+      - MONGO_INITDB_DATABASE=exam-study-planner
+    restart: unless-stopped
+    networks:
+      - dev-network
+
+  # Backend - built locally for development
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: exam-planner-backend-dev
+    ports:
+      - "5001:5001"
+    environment:
+      - MONGODB_CONNECTION_STRING=mongodb://mongodb:27017/exam-study-planner
+      - PORT=5001
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-your-openai-key}
+      - NODE_ENV=development
+    depends_on:
+      - mongodb
+    volumes:
+      # Mount source code for live reload (if using nodemon)
+      - ./backend/src:/app/src
+    restart: unless-stopped
+    networks:
+      - dev-network
+
+  # Frontend - built locally for development  
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: exam-planner-frontend-dev
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+    networks:
+      - dev-network
+
+networks:
+  dev-network:
+    driver: bridge
+
+volumes:
+  mongodb_dev_data:
