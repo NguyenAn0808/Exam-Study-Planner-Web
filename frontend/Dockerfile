@@ -9,7 +9,7 @@ RUN npm install
 COPY . .
 
 # Tạo file .env.production từ các biến môi trường  
-RUN echo "VITE_API_BASE_URL=${VITE_API_BASE_URL:-https://exam-planner-backend.internal.graywave-05c71fd1.southeastasia.azurecontainerapps.io/api}" > .env.production
+RUN echo "VITE_API_BASE_URL=${VITE_API_BASE_URL:-https://exam-planner-backend.graywave-05c71fd1.southeastasia.azurecontainerapps.io/api}" > .env.production
 
 RUN npm run build
 
