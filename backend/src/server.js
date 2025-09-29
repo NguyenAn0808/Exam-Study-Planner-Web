@@ -16,7 +16,19 @@ const PORT = process.env.PORT || 5001;
 
 // Middleware
 app.use(express.json());
-app.use(cors()); // Enable CORS for front end
+
+// CORS configuration for Azure Container Apps
+const corsOptions = {
+  origin: [
+    'http://localhost:3000',
+    'http://localhost:5173',
+    'https://exam-planner-frontend.graywave-05c71fd1.southeastasia.azurecontainerapps.io'
+  ],
+  credentials: true,
+  optionsSuccessStatus: 200
+};
+
+app.use(cors(corsOptions));
 
 // API Routes
 app.use("/api/exams", examRoutes);
